@@ -1,0 +1,36 @@
+name: Aggiorna PSV Giornaliero
+
+on:
+  schedule:
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-psv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Esegui aggiornamento PSV
+        run: python scripts/update_psv.py
+
+      - name: Salva modifiche se psv-data.json è cambiato
+        run: |
+          if git diff --quiet psv-data.json; then
+            echo "Nessuna variazione rilevata."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add psv-data.json
+            git commit -m "chore: aggiornamento automatico PSV ($(date -u +'%Y-%m-%d'))"
+            git push
+          fi
