@@ -1,0 +1,2416 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calcolo spesa energetica | PinTel Gruppo — TIM Energia</title>
+
+  <!--
+    =========================================================================
+    STILI EMBEDDED (CSS Vanilla — Zero dipendenze esterne, pronto per GitHub Pages)
+    Palette istituzionale TIM / PinTel Gruppo:
+      Blu primario: #00338D / #004691
+      Rosso accento: #E30613
+      Sfondo chiaro: #F4F6FA
+    =========================================================================
+  -->
+  <style>
+    :root {
+      --blue: #00338D;
+      --blue-mid: #004691;
+      --blue-dark: #00215E;
+      --blue-soft: #EEF3FC;
+      --blue-border: #C5D6F5;
+      --red: #E30613;
+      --red-soft: #FEF2F2;
+      --yellow: #F5C211;
+      --brown: #4A2C1D;
+      --emerald: #047857;
+      --emerald-bg: #ECFDF5;
+      --emerald-border: #A7F3D0;
+      --amber-bg: #FFFBEB;
+      --amber-border: #FDE68A;
+      --amber-text: #78350F;
+      --bg: #F4F6FA;
+      --card: #FFFFFF;
+      --text: #0F172A;
+      --text-muted: #475569;
+      --text-light: #64748B;
+      --border: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 9px;
+      --shadow-sm: 0 2px 6px rgba(0, 51, 141, 0.05), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 12px 28px -6px rgba(0, 51, 141, 0.24), 0 4px 10px -2px rgba(0, 51, 141, 0.12);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+      min-height: 100vh;
+    }
+
+    /* Barra cromatica istituzionale in alto */
+    .brand-stripe {
+      display: flex;
+      width: 100%;
+      height: 6px;
+    }
+    .brand-stripe span { flex: 1; }
+    .brand-stripe .s-red { background: var(--red); }
+    .brand-stripe .s-yellow { background: var(--yellow); }
+    .brand-stripe .s-blue { background: var(--blue); }
+    .brand-stripe .s-brown { background: var(--brown); }
+
+    /* Contenitore principale responsive mobile-first */
+    .container {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px 16px 44px;
+    }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .logo-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 28px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 14px;
+      min-width: 240px;
+      max-width: 100%;
+    }
+
+    .logo-img {
+      display: block;
+      max-height: 108px;
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .logo-svg {
+      display: block;
+      height: 100px;
+      width: auto;
+      max-width: 100%;
+    }
+
+    .app-title {
+      margin: 0;
+      font-size: clamp(1.55rem, 5vw, 2rem);
+      font-weight: 800;
+      color: var(--blue);
+      letter-spacing: -0.02em;
+    }
+
+    .app-subtitle {
+      margin: 5px 0 0;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    /* Banner errori non invasivo */
+    .error-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--red-soft);
+      border: 1px solid #FECACA;
+      color: #991B1B;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .error-close {
+      background: transparent;
+      border: none;
+      color: #991B1B;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    /* ==================== CARD BASE ==================== */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    @media (min-width: 600px) {
+      .card-body { padding: 24px; }
+    }
+
+    /* ==================== TAB NAVIGAZIONE ==================== */
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 6px;
+      background: #E2E8F0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 50px;
+      padding: 10px 12px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      -webkit-tap-highlight-color: transparent;
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--blue);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0, 51, 141, 0.25);
+    }
+
+    /* ==================== FORM & CONTROLLI ==================== */
+    .field-group {
+      margin-bottom: 18px;
+    }
+    .field-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .field-hint {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--blue);
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-border);
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .helper-line {
+      margin: 7px 0 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-big {
+      width: 100%;
+      padding: 14px 70px 14px 16px;
+      font-family: inherit;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      background: #F8FAFC;
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .input-big:focus {
+      background: #FFFFFF;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(0, 51, 141, 0.12);
+    }
+
+    .input-unit {
+      position: absolute;
+      right: 16px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text-light);
+      pointer-events: none;
+    }
+
+    .select-control {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      background: #F8FAFC;
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .select-control:focus {
+      background: #FFFFFF;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0, 51, 141, 0.12);
+    }
+
+    /* Pulsanti pill / selettori rapidi */
+    .pill-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .pill-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+    }
+
+    .pill-btn {
+      min-height: 48px;
+      padding: 10px 8px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border);
+      background: #FFFFFF;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+      line-height: 1.25;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--blue-border);
+      background: var(--blue-soft);
+    }
+
+    .pill-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(0, 51, 141, 0.22);
+    }
+
+    .pill-btn small {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      opacity: 0.88;
+      margin-top: 3px;
+    }
+
+    /* Selettore segmentato compatto */
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      background: #E2E8F0;
+      padding: 4px;
+      border-radius: var(--radius-md);
+    }
+
+    .seg-btn {
+      min-height: 44px;
+      padding: 8px 10px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1.25;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .seg-btn.active {
+      background: #FFFFFF;
+      color: var(--blue);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+    }
+
+    /* Box Switch / Toggle (Canone RAI, Seconda Casa) */
+    .toggle-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .toggle-card.highlight-amber {
+      background: var(--amber-bg);
+      border-color: var(--amber-border);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .toggle-subrow {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-strong);
+    }
+
+    .toggle-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      display: block;
+    }
+
+    .toggle-desc {
+      font-size: 0.79rem;
+      color: var(--text-light);
+      margin: 2px 0 0;
+    }
+
+    .info-inline-note {
+      margin-top: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--amber-border);
+      color: var(--amber-text);
+      font-size: 0.8rem;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    /* Switch accessibile */
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 29px;
+      flex-shrink: 0;
+      border: none;
+      border-radius: 999px;
+      background: #CBD5E1;
+      cursor: pointer;
+      padding: 0;
+      transition: background-color 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .switch[aria-checked="true"] {
+      background: var(--blue);
+    }
+    .switch.switch-amber[aria-checked="true"] {
+      background: #D97706;
+    }
+    .switch-knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 23px;
+      height: 23px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      transition: transform 0.2s ease;
+    }
+    .switch[aria-checked="true"] .switch-knob {
+      transform: translateX(23px);
+    }
+
+    /* ==================== GAS SPECIFICI ==================== */
+    .info-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      color: var(--amber-text);
+      border-radius: var(--radius-md);
+      padding: 11px 14px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .psv-status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #F8FAFC;
+      color: var(--text-muted);
+    }
+    .status-badge.live {
+      background: var(--emerald-bg);
+      border-color: var(--emerald-border);
+      color: var(--emerald);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Box trasparente costo unitario al metro cubo */
+    .unit-cost-box {
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+
+    .unit-cost-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--blue);
+      margin: 0 0 10px;
+    }
+
+    .unit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.86rem;
+      padding: 4px 0;
+      color: var(--text);
+    }
+
+    .unit-row.total-unit {
+      margin-top: 8px;
+      padding-top: 9px;
+      border-top: 1px solid var(--blue-border);
+      font-weight: 800;
+      color: var(--blue);
+      font-size: 0.96rem;
+    }
+
+    .psv-inline-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .psv-inline-input {
+      width: 112px;
+      padding: 6px 8px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--blue);
+      background: #FFFFFF;
+      border: 1.5px solid var(--blue-border);
+      border-radius: 8px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+    }
+    .psv-inline-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0, 51, 141, 0.14);
+    }
+
+    .link-reset-psv {
+      background: none;
+      border: none;
+      color: var(--red);
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 2px 4px;
+    }
+
+    /* ==================== CARD RISULTATO PRINCIPALE (SCONTRINO DELL'ENERGIA) ==================== */
+    .result-card {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .result-top {
+      padding: 22px 20px;
+    }
+    @media (min-width: 600px) {
+      .result-top { padding: 24px; }
+    }
+
+    .result-header-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .result-label {
+      margin: 0;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #BFDBFE;
+    }
+
+    .result-amount {
+      font-size: clamp(2.35rem, 8vw, 3.1rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 4px 0 0;
+      line-height: 1.05;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .avg-cost-pill {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius-md);
+      padding: 9px 13px;
+      text-align: right;
+    }
+    .avg-cost-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #BFDBFE;
+    }
+    .avg-cost-val {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+    }
+
+    .meta-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .meta-chip {
+      font-size: 0.74rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #EFF6FF;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    /* Azioni barra risultato */
+    .result-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      flex-wrap: wrap;
+    }
+
+    .btn-ghost-light {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255, 255, 255, 0.13);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 9px 14px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+    .btn-ghost-light:hover {
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    /* Pannello dettaglio voci ("Scontrino dell'Energia") */
+    .breakdown-panel {
+      background: #FFFFFF;
+      color: var(--text);
+      padding: 18px 20px 20px;
+      border-top: 1px solid var(--border);
+    }
+    @media (min-width: 600px) {
+      .breakdown-panel { padding: 20px 24px 22px; }
+    }
+
+    .breakdown-heading {
+      margin: 0 0 12px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .b-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid #F1F5F9;
+      font-size: 0.89rem;
+    }
+    .b-row:last-child { border-bottom: none; }
+
+    .b-row.sub-item {
+      padding: 5px 0 6px 14px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      border-bottom: 1px dashed #F1F5F9;
+    }
+
+    .b-row.subtotal {
+      background: #F8FAFC;
+      margin: 4px -10px;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      border-bottom: none;
+    }
+
+    .b-row.grand-total {
+      background: var(--blue-soft);
+      margin: 8px -10px 0;
+      padding: 12px 10px;
+      border-radius: var(--radius-sm);
+      font-weight: 800;
+      color: var(--blue);
+      font-size: 0.98rem;
+      border-bottom: none;
+    }
+
+    .b-label {
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    .b-row.sub-item .b-label { font-weight: 500; }
+    .b-row.grand-total .b-label { font-weight: 800; }
+
+    .b-detail {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 400;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
+    .b-val {
+      font-weight: 700;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+    .b-row.sub-item .b-val { font-weight: 600; color: var(--text-muted); }
+    .b-row.grand-total .b-val { font-weight: 800; color: var(--blue); }
+
+    /* ==================== BOX FISSO NOTA SCONTI ENERGETICI ==================== */
+    .energy-discount-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(90deg, #EEF3FC 0%, #FFFFFF 100%);
+      border: 2px solid var(--blue-border);
+      border-left: 6px solid var(--blue);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .check-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .energy-discount-text {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    /* ==================== SCONTI LINEA FISSA TIM ==================== */
+    .promo-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .promo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      background: var(--red-soft);
+      color: var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      border: 1px solid #FECACA;
+    }
+
+    .promo-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .promo-subtitle {
+      margin: 2px 0 0;
+      font-size: 0.82rem;
+      color: var(--text-light);
+    }
+
+    .promo-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 560px) {
+      .promo-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .promo-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 14px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #FFFFFF;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .promo-btn:hover {
+      border-color: var(--border-strong);
+      background: #F8FAFC;
+    }
+    .promo-btn.active {
+      border-color: var(--emerald);
+      background: var(--emerald-bg);
+      box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+    }
+
+    .promo-btn-main {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .promo-btn-sub {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      margin-top: 3px;
+    }
+
+    .promo-badge {
+      display: inline-block;
+      margin-top: 7px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--emerald);
+      background: #D1FAE5;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .promo-summary {
+      margin-top: 16px;
+      background: var(--emerald-bg);
+      border: 1.5px solid var(--emerald-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .promo-sum-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .promo-annuo-big {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--emerald);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    .promo-sum-note {
+      margin: 10px 0 0;
+      padding-top: 10px;
+      border-top: 1px solid var(--emerald-border);
+      font-size: 0.82rem;
+      color: #065F46;
+      line-height: 1.45;
+    }
+
+    /* Azioni fondo pagina */
+    .footer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 20px 0 22px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-strong);
+      background: #FFFFFF;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: background-color 0.15s;
+    }
+    .btn-secondary:hover { background: #F8FAFC; }
+
+    .btn-danger-outline {
+      color: var(--red);
+      border-color: #FECACA;
+    }
+    .btn-danger-outline:hover { background: var(--red-soft); }
+
+    .footer-note {
+      text-align: center;
+      font-size: 0.76rem;
+      color: var(--text-light);
+      margin: 0;
+    }
+
+    /* Utility */
+    .hidden { display: none !important; }
+    .mono { font-variant-numeric: tabular-nums; }
+
+    /* Stampa / PDF pulito */
+    .print-only { display: none; }
+    @media print {
+      body { background: #FFFFFF; }
+      .brand-stripe, .tabs, .result-actions, .footer-actions, .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .card, .result-card, .logo-box, .energy-discount-banner { box-shadow: none !important; }
+      .result-card {
+        background: #FFFFFF !important;
+        color: var(--text) !important;
+        border: 2px solid var(--blue) !important;
+      }
+      .result-label, .avg-cost-label { color: var(--text-muted) !important; }
+      .result-amount, .avg-cost-val { color: var(--blue) !important; }
+      .avg-cost-pill { background: #F8FAFC !important; border-color: var(--border) !important; }
+      .meta-chip { background: #F1F5F9 !important; color: var(--text) !important; border-color: var(--border) !important; }
+      .breakdown-panel { display: block !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra cromatica istituzionale superiore -->
+  <div class="brand-stripe" aria-hidden="true">
+    <span class="s-red"></span>
+    <span class="s-yellow"></span>
+    <span class="s-blue"></span>
+    <span class="s-brown"></span>
+  </div>
+
+  <main class="container">
+
+    <!-- ==================== 1. HEADER AZIENDALE ==================== -->
+    <header class="header">
+      <div class="logo-box">
+        <!-- Carica il file './logo.jpg' nella stessa cartella del repository GitHub -->
+        <img
+          id="companyLogo"
+          src="./logo.jpg"
+          alt="PinTel Gruppo"
+          class="logo-img"
+          onerror="this.classList.add('hidden'); document.getElementById('logoFallback').classList.remove('hidden');"
+        />
+
+        <!-- Fallback SVG automatico PinTel Gruppo mostrato se logo.jpg non è ancora presente -->
+        <div id="logoFallback" class="hidden" aria-label="PinTel Gruppo">
+          <svg viewBox="0 0 280 132" class="logo-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="svgTitle">
+            <title id="svgTitle">PinTel Gruppo</title>
+            <!-- 4 sagome stilizzate (rosso, giallo, blu, marrone) -->
+            <g fill="#E30613">
+              <circle cx="96" cy="17" r="7" />
+              <path d="M86 27 C86 25 89 24 96 24 C103 24 106 25 106 27 L108 46 L104 54 L103 78 L98 78 L96.5 56 L95.5 56 L94 78 L89 78 L88 54 L84 46 Z" />
+            </g>
+            <g fill="#F5C211">
+              <circle cx="126" cy="19" r="6.8" />
+              <path d="M117 28 C117 26 120 25 126 25 C132 25 135 26 135 28 L137 44 L133 54 L135 66 L131 66 L130 78 L127 78 L126 66 L125 66 L124 78 L121 78 L120 66 L117 66 L119 54 L115 44 Z" />
+            </g>
+            <g fill="#00338D">
+              <circle cx="155" cy="16" r="7.2" />
+              <path d="M145 26 C145 24 148 23 155 23 C162 23 165 24 165 26 L167 46 L163 54 L162 78 L157 78 L155.5 56 L154.5 56 L153 78 L148 78 L147 54 L143 46 Z" />
+            </g>
+            <g fill="#4A2C1D">
+              <circle cx="184" cy="18" r="6.8" />
+              <path d="M175 27 C175 25 178 24 184 24 C190 24 193 25 193 27 L195 43 L191 54 L193 66 L189 66 L188 78 L184.5 78 L183.5 66 L181.5 78 L178 78 L178 66 L175 66 L177 54 L174 43 Z" />
+            </g>
+            <!-- Logotipo PinTel GRUPPO -->
+            <text x="54" y="109" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-style="italic" font-size="31" fill="#E30613" letter-spacing="-0.5">Pin</text>
+            <g transform="translate(132, 98)">
+              <circle cx="0" cy="0" r="13.5" fill="#00338D" />
+              <path d="M0 -13.5 A13.5 13.5 0 0 0 0 13.5 Z" fill="#E30613" />
+              <ellipse cx="0" cy="0" rx="6.2" ry="13.5" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+              <line x1="-13.5" y1="0" x2="13.5" y2="0" stroke="#FFFFFF" stroke-width="1.5" />
+              <path d="M-11.5 -6 Q0 -3 11.5 -6" fill="none" stroke="#FFFFFF" stroke-width="1.3" />
+              <path d="M-11.5 6 Q0 3 11.5 6" fill="none" stroke="#FFFFFF" stroke-width="1.3" />
+            </g>
+            <text x="151" y="109" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-style="italic" font-size="31" fill="#00338D" letter-spacing="-0.5">Tel</text>
+            <text x="56" y="127" font-family="Georgia, serif" font-weight="700" font-style="italic" font-size="15.5" fill="#00338D" letter-spacing="2">GRUPPO</text>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="app-title">Calcolo spesa energetica</h1>
+      <p class="app-subtitle">Simulatore rapido offerte TIM Energia &bull; Gruppo PinTel</p>
+    </header>
+
+    <!-- Banner errore non invasivo -->
+    <div id="errorBanner" class="error-banner hidden" role="alert">
+      <span id="errorBannerText">Si è verificato un errore durante il calcolo.</span>
+      <button type="button" class="error-close" onclick="document.getElementById('errorBanner').classList.add('hidden')" aria-label="Chiudi">✕</button>
+    </div>
+
+    <!-- ==================== 2. CARD CALCOLATORE CON TAB ==================== -->
+    <section class="card">
+      <!-- Navigazione Tab -->
+      <div class="tabs" role="tablist" aria-label="Tipo di fornitura">
+        <button
+          id="tabBtnLuce"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panelLuce"
+          class="tab-btn active"
+          onclick="setActiveTab('luce')"
+        >
+          <span>⚡</span>
+          <span>Energia Elettrica</span>
+        </button>
+
+        <button
+          id="tabBtnGas"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panelGas"
+          class="tab-btn"
+          onclick="setActiveTab('gas')"
+        >
+          <span>🔥</span>
+          <span>Gas Naturale (TIM Energia)</span>
+        </button>
+      </div>
+
+      <!-- Intestazione stampabile -->
+      <div class="print-only" style="padding: 14px 20px 0; font-weight: 800; color: var(--blue);" id="printSupplyTitle">
+        ⚡ Fornitura: Energia Elettrica
+      </div>
+
+      <!-- ==================== TAB 1: ENERGIA ELETTRICA ==================== -->
+      <div id="panelLuce" role="tabpanel" aria-labelledby="tabBtnLuce" class="card-body">
+
+        <!-- 1. Consumo kWh -->
+        <div class="field-group">
+          <div class="field-header">
+            <label for="inputKwh" class="field-label">Consumo energia elettrica (kWh)</label>
+            <span id="badgeTariffaLuce" class="field-hint">Tariffa: 0,246864 €/kWh</span>
+          </div>
+          <div class="input-wrap">
+            <input
+              id="inputKwh"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="1"
+              placeholder="Es. 250"
+              class="input-big"
+            />
+            <span class="input-unit">kWh</span>
+          </div>
+        </div>
+
+        <!-- 2. Mensilità bolletta -->
+        <div class="field-group">
+          <div class="field-header">
+            <span class="field-label">Mensilità bolletta</span>
+            <span id="hintQuotaFissaLuce" class="field-hint">Quota fissa: 10,26 €/mese</span>
+          </div>
+          <div class="pill-grid-2" role="group" aria-label="Mensilità bolletta luce">
+            <button type="button" id="luceMesi1" class="pill-btn active" onclick="setLuceMesi(1)">1 Mese</button>
+            <button type="button" id="luceMesi2" class="pill-btn" onclick="setLuceMesi(2)">2 Mesi <small>Bimestrale</small></button>
+          </div>
+        </div>
+
+        <!-- 3. Potenza impegnata kW -->
+        <div class="field-group">
+          <div class="field-header">
+            <span class="field-label">Potenza impegnata (kW)</span>
+            <span id="hintPotenzaKw" class="field-hint">1,97 €/kW/mese</span>
+          </div>
+          <div class="pill-grid-5" role="group" aria-label="Potenza impegnata in kW">
+            <button type="button" class="pill-btn kw-pill active" data-kw="3" onclick="setLuceKw(3)">3 kW</button>
+            <button type="button" class="pill-btn kw-pill" data-kw="4" onclick="setLuceKw(4)">4 kW</button>
+            <button type="button" class="pill-btn kw-pill" data-kw="4.5" onclick="setLuceKw(4.5)">4,5 kW</button>
+            <button type="button" class="pill-btn kw-pill" data-kw="5" onclick="setLuceKw(5)">5 kW</button>
+            <button type="button" class="pill-btn kw-pill" data-kw="6" onclick="setLuceKw(6)">6 kW</button>
+          </div>
+          <p id="potenzaCalcNote" class="helper-line mono">
+            Quota potenza: 3 kW × 1,97 €/mese × 1 mese = <strong>5,91 €</strong>
+          </p>
+        </div>
+
+        <!-- 4. Seconda casa (Domestico non residente) -->
+        <div class="field-group">
+          <div id="secondaCasaCard" class="toggle-card">
+            <div class="toggle-row">
+              <div>
+                <label for="toggleSecondaCasa" class="toggle-title">Seconda casa (Domestico non residente)</label>
+                <p id="secondaCasaSubtext" class="toggle-desc">Disattivo = Prima casa residente (esenzione accise attiva fino a 3 kW)</p>
+              </div>
+              <button
+                type="button"
+                id="toggleSecondaCasa"
+                class="switch switch-amber"
+                role="switch"
+                aria-checked="false"
+                onclick="toggleSecondaCasa()"
+              >
+                <span class="switch-knob"></span>
+              </button>
+            </div>
+
+            <div id="secondaCasaNote" class="info-inline-note hidden">
+              <strong>Nota seconda casa:</strong> l'IVA rimane al <strong>10%</strong> (uso domestico), ma decadono le esenzioni accise sui primi 150 kWh/mese (si applicano 0,0227 €/kWh su tutti i kWh). Il Canone RAI è stato disattivato automaticamente (puoi riattivarlo sotto se necessario).
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Flag Canone RAI + Flag condizionale 2 mesi -->
+        <div class="field-group">
+          <div class="toggle-card">
+            <div class="toggle-row">
+              <div>
+                <label for="toggleRai" class="toggle-title">Includi Canone RAI (9,00 €/mese)</label>
+                <p id="raiSubtext" class="toggle-desc">Esente IVA &bull; Non incluso</p>
+              </div>
+              <button
+                type="button"
+                id="toggleRai"
+                class="switch"
+                role="switch"
+                aria-checked="false"
+                onclick="toggleCanoneRai()"
+              >
+                <span class="switch-knob"></span>
+              </button>
+            </div>
+
+            <!-- Visibile SOLO se "2 Mesi" E "Includi Canone RAI" -->
+            <div id="raiTwoMonthsBox" class="toggle-subrow hidden">
+              <div class="toggle-row">
+                <div>
+                  <label for="toggleRaiTwoMonths" class="toggle-title" style="color: var(--blue);">
+                    Addebita 2 mesi di Canone RAI (18,00 € invece di 9,00 €)
+                  </label>
+                  <p class="toggle-desc">
+                    Se non spuntato calcola 1 solo mese (9,00 €), poiché il canone si paga 10 mesi su 12.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  id="toggleRaiTwoMonths"
+                  class="switch"
+                  role="switch"
+                  aria-checked="false"
+                  onclick="toggleCanoneRaiTwoMonths()"
+                >
+                  <span class="switch-knob"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Switcher rapido Aliquota IVA -->
+        <div class="field-group">
+          <div class="field-header">
+            <span class="field-label">Aliquota IVA</span>
+          </div>
+          <div class="segmented" role="group" aria-label="Aliquota IVA energia elettrica">
+            <button type="button" id="btnIva10" class="seg-btn active" onclick="setLuceIva(0.10)">
+              10% (Uso domestico)
+            </button>
+            <button type="button" id="btnIva22" class="seg-btn" onclick="setLuceIva(0.22)">
+              22% (Altri usi / Box)
+            </button>
+          </div>
+          <p class="helper-line">
+            Per uso domestico (1ª e 2ª casa) l'IVA è al 10%; seleziona 22% solo per contatori altri usi (es. box, cantine, pertinenze non abitative).
+          </p>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 2: GAS NATURALE (TIM ENERGIA) ==================== -->
+      <div id="panelGas" role="tabpanel" aria-labelledby="tabBtnGas" class="card-body hidden">
+
+        <!-- Nota informativa PSV mensile -->
+        <div class="info-box">
+          <span aria-hidden="true" style="font-size: 1rem; line-height: 1.2;">ℹ️</span>
+          <div>
+            Per il <strong>Gas Naturale TIM Energia (variabile PSV)</strong> il calcolo si effettua sulla <strong>media mensile PSV</strong> del mese di riferimento selezionato.
+          </div>
+        </div>
+
+        <!-- Badge stato fonte PSV (JSON automatico o tabella integrata) -->
+        <div class="psv-status-bar">
+          <span id="psvStatusBadge" class="status-badge">
+            <span class="status-dot"></span>
+            <span id="psvStatusText">Fonte: tabella PSV 2026 integrata</span>
+          </span>
+          <span class="field-hint" id="hintQuotaFissaGas">Fissi: 7,42 € + 3,98 €/mese</span>
+        </div>
+
+        <!-- 1. Selettore Mese di riferimento (2026) -->
+        <div class="field-group">
+          <div class="field-header">
+            <label for="selectGasMese" class="field-label">Mese di riferimento (2026)</label>
+          </div>
+          <select id="selectGasMese" class="select-control" onchange="onGasMonthChange(this.value)">
+            <!-- Popolato da JS -->
+          </select>
+        </div>
+
+        <!-- 2. Consumo Gas (Smc) -->
+        <div class="field-group">
+          <div class="field-header">
+            <label for="inputSmc" class="field-label">Consumo Gas (Smc)</label>
+          </div>
+          <div class="input-wrap">
+            <input
+              id="inputSmc"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.01"
+              placeholder="Es. 120"
+              class="input-big"
+            />
+            <span class="input-unit">Smc</span>
+          </div>
+        </div>
+
+        <!-- Mensilità bolletta Gas -->
+        <div class="field-group">
+          <div class="field-header">
+            <span class="field-label">Mensilità bolletta</span>
+          </div>
+          <div class="pill-grid-2" role="group" aria-label="Mensilità bolletta gas">
+            <button type="button" id="gasMesi1" class="pill-btn active" onclick="setGasMesi(1)">1 Mese</button>
+            <button type="button" id="gasMesi2" class="pill-btn" onclick="setGasMesi(2)">2 Mesi <small>Bimestrale</small></button>
+          </div>
+        </div>
+
+        <!-- 3. PSV del mese editabile + Box trasparente costo al Smc -->
+        <div class="unit-cost-box">
+          <p class="unit-cost-title">Costo trasparente al metro cubo (escl. imposte)</p>
+
+          <div class="unit-row">
+            <div>
+              <label for="inputGasPsv" style="font-weight: 700;">PSV del mese (€/Smc)</label>
+              <button type="button" id="btnResetPsv" class="link-reset-psv hidden" onclick="resetPsvToMonth()">
+                ripristina mese
+              </button>
+            </div>
+            <div class="psv-inline-edit">
+              <input
+                id="inputGasPsv"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="0.000001"
+                class="psv-inline-input"
+              />
+              <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">€/Smc</span>
+            </div>
+          </div>
+
+          <div class="unit-row">
+            <span>+ Spread TIM Energia</span>
+            <span id="unitSpreadVal" class="mono" style="font-weight: 700;">0,095000 €/Smc</span>
+          </div>
+
+          <div class="unit-row">
+            <span>+ Rete e Oneri di sistema</span>
+            <span id="unitReteVal" class="mono" style="font-weight: 700;">0,251561 €/Smc</span>
+          </div>
+
+          <div class="unit-row total-unit">
+            <span>= Totale €/Smc (escl. imposte)</span>
+            <span id="unitTotalGasVal" class="mono">0,000000 €/Smc</span>
+          </div>
+        </div>
+
+        <!-- 4. Zona geografica per accise e addizionale regionale -->
+        <div class="field-group">
+          <div class="field-header">
+            <span class="field-label">Zona geografica (Accise e Addizionale regionale)</span>
+          </div>
+          <div class="segmented" role="group" aria-label="Zona geografica gas">
+            <button type="button" id="btnZonaNord" class="seg-btn active" onclick="setGasZona('centro-nord')">
+              Centro-Nord / Emilia-Romagna
+            </button>
+            <button type="button" id="btnZonaSud" class="seg-btn" onclick="setGasZona('sud')">
+              Sud Italia (Mezzogiorno)
+            </button>
+          </div>
+        </div>
+
+        <!-- 5. Fascia IVA Gas -->
+        <div class="field-group">
+          <div class="field-header">
+            <span class="field-label">Fascia IVA Gas</span>
+          </div>
+          <div class="pill-grid-2" role="group" aria-label="Fascia IVA gas">
+            <button type="button" id="gasFasciaFino480" class="pill-btn active" onclick="setGasFascia('fino480')">
+              Entro i primi 480 Smc/anno
+              <small>IVA 10% sui consumi, 22% quote fisse</small>
+            </button>
+            <button type="button" id="gasFasciaOltre480" class="pill-btn" onclick="setGasFascia('oltre480')">
+              Oltre 480 Smc/anno
+              <small>IVA 22% su tutto</small>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. RIEPILOGO STILE SCONTRINO DELL'ENERGIA ==================== -->
+    <section class="result-card" aria-live="polite">
+      <div class="result-top">
+        <div class="result-header-row">
+          <div>
+            <p id="resultPeriodLabel" class="result-label">Totale stimato bolletta Luce (1 mese)</p>
+            <div id="resultTotalValue" class="result-amount">0,00 €</div>
+          </div>
+
+          <div id="avgCostBox" class="avg-cost-pill">
+            <span id="avgCostLabel" class="avg-cost-label">Costo medio</span>
+            <span id="avgCostVal" class="avg-cost-val">— €/kWh</span>
+          </div>
+        </div>
+
+        <div id="resultMetaChips" class="meta-chips">
+          <!-- Popolato da JS -->
+        </div>
+
+        <!-- Azioni card risultato -->
+        <div class="result-actions">
+          <button
+            type="button"
+            id="btnToggleBreakdown"
+            class="btn-ghost-light"
+            aria-expanded="true"
+            aria-controls="breakdownPanel"
+            onclick="toggleBreakdown()"
+          >
+            <span id="breakdownArrow">▴</span>
+            <span id="breakdownBtnLabel">Nascondi Scontrino dell'Energia</span>
+          </button>
+
+          <button type="button" class="btn-ghost-light" onclick="resetCurrentTab()">
+            <span>↺</span>
+            <span>Azzera</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dettaglio ordinato stile "Scontrino dell'Energia" TIM -->
+      <div id="breakdownPanel" class="breakdown-panel">
+        <h2 id="breakdownTitle" class="breakdown-heading">
+          <span>Scontrino dell'Energia — Dettaglio voci</span>
+        </h2>
+        <div id="breakdownRows">
+          <!-- Popolato dinamicamente da JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. BOX FISSO SCONTI BOLLETTA ENERGETICA ==================== -->
+    <div class="energy-discount-banner" role="note">
+      <span class="check-circle" aria-hidden="true">✓</span>
+      <p class="energy-discount-text">Calcolo effettuato già con gli sconti sulla bolletta energetica</p>
+    </div>
+
+    <!-- ==================== 5. SEZIONE FISSA: ULTERIORI SCONTI LINEA FISSA TIM ==================== -->
+    <section class="card">
+      <div class="card-body">
+        <div class="promo-header">
+          <div class="promo-icon" aria-hidden="true">🎁</div>
+          <div>
+            <h2 class="promo-title">Ulteriori sconti su Linea Fissa TIM</h2>
+            <p class="promo-subtitle">Seleziona la promozione attiva per mostrare al cliente il risparmio extra annuo</p>
+          </div>
+        </div>
+
+        <div class="promo-grid" role="radiogroup" aria-label="Ulteriori sconti su Linea Fissa TIM">
+          <button type="button" id="promoBtn0" class="promo-btn active" onclick="setPromoFissa(0)">
+            <span class="promo-btn-main">Nessuno</span>
+            <span class="promo-btn-sub">0 €/anno extra</span>
+          </button>
+
+          <button type="button" id="promoBtn2" class="promo-btn" onclick="setPromoFissa(2)">
+            <span class="promo-btn-main">Promo 2 €/mese × 12 mesi</span>
+            <span class="promo-badge">Risparmio annuo: 24,00 €</span>
+          </button>
+
+          <button type="button" id="promoBtn5" class="promo-btn" onclick="setPromoFissa(5)">
+            <span class="promo-btn-main">Promo 5 €/mese × 12 mesi</span>
+            <span class="promo-badge">Risparmio annuo: 60,00 €</span>
+          </button>
+        </div>
+
+        <!-- Riepilogo risparmio extra sulla linea fissa -->
+        <div id="promoSummaryBox" class="promo-summary hidden">
+          <div class="promo-sum-hero">
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: #065F46; text-transform: uppercase; letter-spacing: 0.03em;">
+                Risparmio totale annuo sulla linea fissa TIM
+              </div>
+              <div id="promoFormulaDesc" style="font-size: 0.84rem; color: #047857; margin-top: 2px;">
+                2,00 €/mese × 12 mesi
+              </div>
+            </div>
+            <div id="promoAnnuoVal" class="promo-annuo-big">24,00 €</div>
+          </div>
+
+          <p class="promo-sum-note">
+            <strong>Nota per il cliente:</strong> questo sconto viene applicato direttamente sulla <strong>fattura della linea fissa TIM</strong>, in aggiunta agli sconti già inclusi nella bolletta energetica sopra calcolata.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Azioni rapide -->
+    <div class="footer-actions">
+      <button type="button" class="btn-secondary" onclick="window.print()">
+        <span>🖨️</span>
+        <span>Stampa / Salva PDF</span>
+      </button>
+      <button type="button" class="btn-secondary btn-danger-outline" onclick="resetAll()">
+        <span>↺</span>
+        <span>Azzera tutto</span>
+      </button>
+    </div>
+
+    <p class="footer-note">
+      PinTel Gruppo &bull; Simulatore interno a uso preventivo per offerte TIM Energia. Le cifre sono stime calcolate secondo le tariffe configurate e le aliquote fiscali vigenti.
+    </p>
+  </main>
+
+  <!-- ==================== LOGICA APPLICATIVA (JS VANILLA) ==================== -->
+  <script>
+    /**
+     * =========================================================================
+     * BLOCCO DI CONFIGURAZIONE TARIFFE — AGGIORNA QUI LE TARIFFE SU GITHUB
+     * =========================================================================
+     * Modifica i valori qui sotto direttamente da GitHub quando variano i listini.
+     */
+    const CONFIG = {
+      // === PARAMETRI ENERGIA ELETTRICA ===
+      LUCE: {
+        costoMateriaKwh: 0.199,       // Prezzo fisso materia energia (€/kWh) — aggiorna ogni 2 settimane
+        spesaReteOneriKwh: 0.047864,  // Costi fissi variabili rete e oneri (€/kWh)
+        quotaFissaVenditaMese: 10.26, // Quota fissa spese vendita energia (€/mese)
+        quotaPotenzaPerKw: 1.97,      // Quota potenza (€/kW/mese)
+        canoneRaiMese: 9.00,          // Canone RAI mensile (10 mesi/anno, esente IVA)
+        accisaDomesticaKwh: 0.0227,   // Accisa energia elettrica domestica ADM (€/kWh)
+        ivaDefault: 0.10              // IVA predefinita: 0.10 = 10% (uso domestico 1ª e 2ª casa)
+      },
+
+      // === PARAMETRI GAS NATURALE (TIM ENERGIA VARIABILE PSV) ===
+      GAS: {
+        spreadSmc: 0.095,             // Spread fisso TIM Energia aggiunto al PSV (€/Smc)
+        reteOneriSmc: 0.251561,       // Spesa rete e oneri generali di sistema (€/Smc)
+        quotaFissaVenditaAnnua: 89.00,// 140,00 € listino − 51,00 € promo = 89,00 €/anno (7,4167 €/mese)
+        quotaFissaReteMese: 3.98,     // Quota fissa rete e oneri di sistema (€/mese)
+        sogliaIva10Annua: 480,        // Soglia di legge IVA 10% sui consumi gas (Smc/anno)
+        meseDefault: '2026-10',       // Mese selezionato di default all'avvio (Ottobre 2026)
+
+        // Storico PSV mensile 2026 integrato (€/Smc) — sovrascrivibile da ./psv-data.json se presente
+        storicoPsv2026: {
+          '2026-11': { label: 'Novembre 2026 (provvisorio)', psv: 0.920570 },
+          '2026-10': { label: 'Ottobre 2026', psv: 0.945436 },
+          '2026-09': { label: 'Settembre 2026', psv: 0.843182 },
+          '2026-08': { label: 'Agosto 2026', psv: 0.686448 },
+          '2026-07': { label: 'Luglio 2026', psv: 0.606612 },
+          '2026-06': { label: 'Giugno 2026', psv: 0.504871 },
+          '2026-05': { label: 'Maggio 2026', psv: 0.501752 },
+          '2026-04': { label: 'Aprile 2026', psv: 0.492325 },
+          '2026-03': { label: 'Marzo 2026', psv: 0.557699 },
+          '2026-02': { label: 'Febbraio 2026', psv: 0.376788 },
+          '2026-01': { label: 'Gennaio 2026', psv: 0.403934 }
+        },
+
+        // Aliquote accise statali ADM per scaglione (0-120, 121-480, 481-1560, >1560 Smc)
+        accise: {
+          'centro-nord': {
+            s1: 0.044, // 0 - 120 Smc
+            s2: 0.175, // 121 - 480 Smc
+            s3: 0.170, // 481 - 1560 Smc
+            s4: 0.186  // > 1560 Smc
+          },
+          'sud': {
+            s1: 0.038, // 0 - 120 Smc
+            s2: 0.135, // 121 - 480 Smc
+            s3: 0.120, // 481 - 1560 Smc
+            s4: 0.150  // > 1560 Smc
+          }
+        },
+
+        // Addizionale regionale gas (€/Smc)
+        addizionaleRegionale: {
+          'centro-nord': {
+            fino120: 0.022,      // Emilia-Romagna fino a 120 Smc
+            oltre120: 0.0309874  // Emilia-Romagna oltre 120 Smc
+          },
+          'sud': {
+            fino120: 0.0258,     // Media Mezzogiorno
+            oltre120: 0.0258
+          }
+        }
+      }
+    };
+
+    /**
+     * Stato reattivo dell'applicazione
+     */
+    const state = {
+      activeTab: 'luce',       // 'luce' | 'gas'
+      showBreakdown: true,     // Scontrino dell'Energia aperto di default per massima chiarezza
+      promoFissaMese: 0,       // 0 | 2 | 5 (€/mese × 12 mesi)
+      luce: {
+        kwh: 0,
+        mensilita: 1,
+        kw: 3,
+        secondaCasa: false,    // false = Prima casa residente | true = Seconda casa non residente
+        canoneRai: false,
+        canoneRaiDueMesi: false,
+        iva: CONFIG.LUCE.ivaDefault
+      },
+      gas: {
+        meseKey: CONFIG.GAS.meseDefault,
+        psv: CONFIG.GAS.storicoPsv2026[CONFIG.GAS.meseDefault].psv,
+        psvCustom: false,
+        smc: 0,
+        mensilita: 1,
+        zona: 'centro-nord',   // 'centro-nord' | 'sud'
+        fasciaIva: 'fino480'   // 'fino480' | 'oltre480'
+      }
+    };
+
+    /* ==================== FORMATTATORI ITALIANI ==================== */
+    const fmtEur = new Intl.NumberFormat('it-IT', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    const fmtNum = new Intl.NumberFormat('it-IT', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    });
+
+    const fmtUnit4 = new Intl.NumberFormat('it-IT', {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4
+    });
+
+    const fmtUnit6 = new Intl.NumberFormat('it-IT', {
+      minimumFractionDigits: 6,
+      maximumFractionDigits: 6
+    });
+
+    function parseSafeFloat(val) {
+      const n = parseFloat(String(val).replace(',', '.'));
+      return Number.isFinite(n) && n > 0 ? n : 0;
+    }
+
+    function showError(msg) {
+      const banner = document.getElementById('errorBanner');
+      const text = document.getElementById('errorBannerText');
+      if (banner && text) {
+        text.textContent = msg;
+        banner.classList.remove('hidden');
+      }
+    }
+
+    /**
+     * =========================================================================
+     * CARICAMENTO SILENZIOSO OPZIONALE DA ./psv-data.json (GitHub Pages / Actions)
+     * Se il file non è presente resta sulla tabella integrata senza errori.
+     * =========================================================================
+     */
+    async function tryLoadLivePsvJson() {
+      const badge = document.getElementById('psvStatusBadge');
+      const text = document.getElementById('psvStatusText');
+
+      try {
+        const res = await fetch('./psv-data.json?t=' + Date.now(), { cache: 'no-store' });
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (!data || typeof data !== 'object') return;
+
+        let updated = false;
+        const storico = CONFIG.GAS.storicoPsv2026;
+
+        // Supporta mappe mensili { months: { "2026-11": { label, psv } } } oppure { storico: ... }
+        const mapSource = data.months || data.storico || data.psvStorico;
+        if (mapSource && typeof mapSource === 'object') {
+          Object.keys(mapSource).forEach(key => {
+            const entry = mapSource[key];
+            if (entry && typeof entry === 'object' && Number.isFinite(Number(entry.psv))) {
+              storico[key] = {
+                label: entry.label || (storico[key] ? storico[key].label : key),
+                psv: Number(entry.psv)
+              };
+              updated = true;
+            } else if (Number.isFinite(Number(entry))) {
+              storico[key] = {
+                label: storico[key] ? storico[key].label : key,
+                psv: Number(entry)
+              };
+              updated = true;
+            }
+          });
+        }
+
+        // Supporta valore singolo { currentMonth, currentPsv } o { month, psv }
+        const curMonth = data.currentMonth || data.month || Object.keys(storico).sort().reverse()[0];
+        const curPsv = data.currentPsv !== undefined ? data.currentPsv : data.psv;
+        if (curMonth && Number.isFinite(Number(curPsv))) {
+          const existingLabel = storico[curMonth] ? storico[curMonth].label : (curMonth + ' (live)');
+          storico[curMonth] = {
+            label: data.label || existingLabel,
+            psv: Number(curPsv)
+          };
+          updated = true;
+        }
+
+        if (updated) {
+          populateGasMonthSelect();
+          if (!state.gas.psvCustom && storico[state.gas.meseKey]) {
+            state.gas.psv = storico[state.gas.meseKey].psv;
+            document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
+          }
+
+          const rawDate = data.updatedAt || data.date || data.aggiornatoAl || '';
+          const formattedDate = formatLiveDate(rawDate);
+          badge.classList.add('live');
+          text.textContent = formattedDate
+            ? `PSV live da GitHub (aggiornato al ${formattedDate})`
+            : 'PSV live aggiornato da psv-data.json';
+          render();
+        }
+      } catch (_err) {
+        // Silenzioso se il file ./psv-data.json non esiste o in esecuzione locale file://
+      }
+    }
+
+    function formatLiveDate(raw) {
+      if (!raw) return '';
+      const d = new Date(raw);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+      return String(raw);
+    }
+
+    /**
+     * =========================================================================
+     * CALCOLO ENERGIA ELETTRICA
+     * =========================================================================
+     */
+    function calculateLuce() {
+      const { kwh, mensilita, kw, secondaCasa, canoneRai, canoneRaiDueMesi, iva } = state.luce;
+      const L = CONFIG.LUCE;
+
+      // 1. Spesa energia + oneri variabili = (0,199 + 0,047864) × kWh
+      const tariffaUnitariaKwh = L.costoMateriaKwh + L.spesaReteOneriKwh;
+      const spesaEnergiaVariabile = kwh * tariffaUnitariaKwh;
+
+      // 2. Quota fissa vendita = 10,26 € × mesi
+      const quotaFissaVendita = L.quotaFissaVenditaMese * mensilita;
+
+      // 3. Quota potenza = 1,97 € × kW × mesi
+      const quotaPotenza = L.quotaPotenzaPerKw * kw * mensilita;
+
+      // 4. Accise (0,0227 €/kWh) secondo regola ADM:
+      //    Prima casa residente + potenza <= 3 kW -> esenzione progressiva mensile;
+      //    Potenza > 3 kW OPPURE Seconda casa (non residente) -> su tutti i kWh.
+      const kwhMese = kwh / mensilita;
+      let kwhTassabiliMese = kwhMese;
+      let notaAccise = '';
+
+      if (secondaCasa) {
+        kwhTassabiliMese = kwhMese;
+        notaAccise = 'Seconda casa (non residente): 0,0227 €/kWh su tutti i kWh';
+      } else if (kw > 3) {
+        kwhTassabiliMese = kwhMese;
+        notaAccise = 'Potenza > 3 kW: 0,0227 €/kWh su tutti i kWh';
+      } else {
+        if (kwhMese <= 150) {
+          kwhTassabiliMese = 0;
+          notaAccise = 'Esente (≤ 150 kWh/mese — 1ª casa 3 kW)';
+        } else if (kwhMese <= 220) {
+          kwhTassabiliMese = kwhMese - 150;
+          notaAccise = 'Esenti i primi 150 kWh/mese (1ª casa 3 kW)';
+        } else if (kwhMese < 370) {
+          // Tra 220 e 370 kWh/mese l'esenzione scende di 1 kWh per ogni kWh oltre 220
+          const esentiMese = 150 - (kwhMese - 220);
+          kwhTassabiliMese = kwhMese - esentiMese;
+          notaAccise = `Esenzione progressiva ADM (${fmtNum.format(esentiMese)} kWh/mese esenti)`;
+        } else {
+          kwhTassabiliMese = kwhMese;
+          notaAccise = 'Oltre 370 kWh/mese: nessuna esenzione accise';
+        }
+      }
+
+      const kwhTassabiliTotali = kwhTassabiliMese * mensilita;
+      const accise = kwhTassabiliTotali * L.accisaDomesticaKwh;
+
+      // 5. Imponibile IVA e IVA
+      const imponibileIva = spesaEnergiaVariabile + quotaFissaVendita + quotaPotenza + accise;
+      const importoIva = imponibileIva * iva;
+
+      // 6. Canone RAI (esente IVA)
+      let mesiRai = 0;
+      let importoRai = 0;
+      if (canoneRai) {
+        mesiRai = (mensilita === 2 && canoneRaiDueMesi) ? 2 : 1;
+        importoRai = L.canoneRaiMese * mesiRai;
+      }
+
+      // 7. Totale bolletta e costo medio al kWh (escluso Canone RAI per valore reale energia, o su totale energia)
+      const totaleEnergia = imponibileIva + importoIva;
+      const totaleBolletta = totaleEnergia + importoRai;
+      const costoMedioKwh = kwh > 0 ? (totaleEnergia / kwh) : null;
+
+      return {
+        totale: totaleBolletta,
+        avgLabel: 'Costo medio energia',
+        avgText: costoMedioKwh !== null ? `${fmtUnit4.format(costoMedioKwh)} €/kWh` : '— €/kWh',
+        title: `Totale stimato bolletta Luce (${mensilita === 1 ? '1 mese' : '2 mesi'})`,
+        breakdownTitle: "Scontrino dell'Energia — Energia Elettrica",
+        chips: [
+          `${fmtNum.format(kwh)} kWh`,
+          `${fmtNum.format(kw)} kW`,
+          secondaCasa ? '2ª Casa (non res.)' : '1ª Casa (residente)',
+          `IVA ${Math.round(iva * 100)}%`,
+          canoneRai ? `Canone RAI ${mesiRai} ${mesiRai === 1 ? 'mese' : 'mesi'}` : 'Senza Canone RAI'
+        ],
+        rows: [
+          {
+            label: 'Spesa energia + oneri variabili',
+            detail: `${fmtNum.format(kwh)} kWh × (${fmtNum.format(L.costoMateriaKwh)} + ${fmtUnit6.format(L.spesaReteOneriKwh)}) €/kWh`,
+            amount: spesaEnergiaVariabile
+          },
+          {
+            label: 'Quota fissa vendita energia',
+            detail: `${fmtEur.format(L.quotaFissaVenditaMese)}/mese × ${mensilita} ${mensilita === 1 ? 'mese' : 'mesi'}`,
+            amount: quotaFissaVendita
+          },
+          {
+            label: 'Quota potenza impegnata',
+            detail: `${fmtEur.format(L.quotaPotenzaPerKw)}/kW × ${fmtNum.format(kw)} kW × ${mensilita} ${mensilita === 1 ? 'mese' : 'mesi'}`,
+            amount: quotaPotenza
+          },
+          {
+            label: 'Accise energia elettrica',
+            detail: `${notaAccise} (${fmtNum.format(kwhTassabiliTotali)} kWh tassabili)`,
+            amount: accise
+          },
+          {
+            label: 'Imponibile IVA',
+            detail: 'Spesa energia + quota fissa + quota potenza + accise',
+            amount: imponibileIva,
+            type: 'subtotal'
+          },
+          {
+            label: `IVA (${Math.round(iva * 100)}%)`,
+            detail: iva === 0.10 ? 'Aliquota uso domestico (1ª e 2ª casa)' : 'Aliquota altri usi / pertinenze (box, cantine)',
+            amount: importoIva
+          },
+          {
+            label: 'Canone RAI (esente IVA)',
+            detail: canoneRai
+              ? `${fmtEur.format(L.canoneRaiMese)} × ${mesiRai} ${mesiRai === 1 ? 'mese' : 'mesi'}`
+              : 'Non incluso',
+            amount: importoRai
+          },
+          {
+            label: 'TOTALE STIMATO BOLLETTA LUCE',
+            detail: costoMedioKwh !== null
+              ? `Costo medio energia (escl. RAI): ${fmtUnit4.format(costoMedioKwh)} €/kWh`
+              : `Periodo di riferimento: ${mensilita} ${mensilita === 1 ? 'mese' : 'mesi'}`,
+            amount: totaleBolletta,
+            type: 'grand-total'
+          }
+        ]
+      };
+    }
+
+    /**
+     * =========================================================================
+     * CALCOLO GAS NATURALE (TIM ENERGIA — SCONTRINO DELL'ENERGIA)
+     * =========================================================================
+     */
+    function calculateGas() {
+      const { psv, smc, mensilita, zona, fasciaIva, meseKey } = state.gas;
+      const G = CONFIG.GAS;
+
+      // 1. Prezzo al metro cubo (vendita + rete/oneri)
+      const prezzoVenditaSmc = psv + G.spreadSmc;
+      const prezzoReteSmc = G.reteOneriSmc;
+      const prezzoTotaleSmc = prezzoVenditaSmc + prezzoReteSmc;
+
+      const spesaVenditaConsumi = smc * prezzoVenditaSmc;
+      const spesaReteConsumi = smc * prezzoReteSmc;
+      const quotaConsumiTotale = spesaVenditaConsumi + spesaReteConsumi;
+
+      // 2. Quote fisse Gas: (89,00 € / 12 = 7,4167 €/mese) + 3,98 €/mese
+      const quotaFissaVenditaMese = G.quotaFissaVenditaAnnua / 12;
+      const quotaFissaReteMese = G.quotaFissaReteMese;
+      const quotaFissaVenditaTot = quotaFissaVenditaMese * mensilita;
+      const quotaFissaReteTot = quotaFissaReteMese * mensilita;
+      const quotaFissaTotale = quotaFissaVenditaTot + quotaFissaReteTot;
+
+      // 3. Accise ADM + Addizionale regionale a scaglioni (0-120, 121-480, 481-1560, >1560 Smc)
+      const acc = G.accise[zona];
+      const add = G.addizionaleRegionale[zona];
+      const soglia = G.sogliaIva10Annua; // 480 Smc
+
+      let accise = 0;
+      let addizionale = 0;
+      let acciseFino480 = 0;
+      let addFino480 = 0;
+
+      if (fasciaIva === 'fino480') {
+        const s1 = Math.min(smc, 120);
+        const s2 = Math.max(0, Math.min(smc, 480) - 120);
+        const s3 = Math.max(0, Math.min(smc, 1560) - 480);
+        const s4 = Math.max(0, smc - 1560);
+
+        acciseFino480 = (s1 * acc.s1) + (s2 * acc.s2);
+        const acciseOltre480 = (s3 * acc.s3) + (s4 * acc.s4);
+        accise = acciseFino480 + acciseOltre480;
+
+        addFino480 = (s1 * add.fino120) + (s2 * add.oltre120);
+        const addOltre480 = (s3 + s4) * add.oltre120;
+        addizionale = addFino480 + addOltre480;
+      } else {
+        // Cliente già oltre i 480 Smc/anno: applica scaglioni 481-1560 (ampiezza 1080) e >1560
+        const s3 = Math.min(smc, 1080);
+        const s4 = Math.max(0, smc - 1080);
+        accise = (s3 * acc.s3) + (s4 * acc.s4);
+        addizionale = smc * add.oltre120;
+      }
+
+      const totaleAcciseAdd = accise + addizionale;
+
+      // 4. Calcolo IVA Gas:
+      //    - "Entro i primi 480 Smc/anno": IVA 10% sui consumi (+ relative accise fino a 480 Smc), IVA 22% su quote fisse (e su eventuali Smc oltre 480)
+      //    - "Oltre 480 Smc/anno": IVA 22% su tutto
+      let iva10 = 0;
+      let iva22 = 0;
+      let dettaglioIva = '';
+
+      if (fasciaIva === 'oltre480') {
+        const imponibile22 = quotaConsumiTotale + quotaFissaTotale + totaleAcciseAdd;
+        iva22 = imponibile22 * 0.22;
+        dettaglioIva = `22% su tutto l'imponibile (${fmtEur.format(imponibile22)})`;
+      } else if (smc <= soglia) {
+        const baseConsumi10 = quotaConsumiTotale + totaleAcciseAdd;
+        const baseFissi22 = quotaFissaTotale;
+        iva10 = baseConsumi10 * 0.10;
+        iva22 = baseFissi22 * 0.22;
+        dettaglioIva = `10% su consumi e accise (${fmtEur.format(iva10)}) + 22% su quote fisse (${fmtEur.format(iva22)})`;
+      } else {
+        // Superamento dei 480 Smc nella singola bolletta: 10% sui primi 480 Smc, 22% su eccedenza e quote fisse
+        const smcEccedenti = smc - soglia;
+        const base10 = (soglia * prezzoTotaleSmc) + acciseFino480 + addFino480;
+        const base22 = (smcEccedenti * prezzoTotaleSmc) + (accise - acciseFino480) + (addizionale - addFino480) + quotaFissaTotale;
+        iva10 = base10 * 0.10;
+        iva22 = base22 * 0.22;
+        dettaglioIva = `10% sui primi ${soglia} Smc (${fmtEur.format(iva10)}) + 22% su eccedenza e quote fisse (${fmtEur.format(iva22)})`;
+      }
+
+      const totaleIva = iva10 + iva22;
+      const totaleImposte = totaleAcciseAdd + totaleIva;
+
+      // 5. Totale finale e costo medio al Smc
+      const totaleBolletta = quotaConsumiTotale + quotaFissaTotale + totaleImposte;
+      const costoMedioSmc = smc > 0 ? (totaleBolletta / smc) : null;
+
+      const meseLabel = G.storicoPsv2026[meseKey] ? G.storicoPsv2026[meseKey].label : meseKey;
+
+      return {
+        totale: totaleBolletta,
+        avgLabel: 'Costo medio finito',
+        avgText: costoMedioSmc !== null ? `${fmtUnit4.format(costoMedioSmc)} €/Smc` : '— €/Smc',
+        title: `Totale stimato bolletta Gas (${mensilita === 1 ? '1 mese' : '2 mesi'})`,
+        breakdownTitle: `Scontrino dell'Energia TIM — Gas (${meseLabel})`,
+        chips: [
+          `${fmtNum.format(smc)} Smc`,
+          `PSV ${fmtUnit4.format(psv)} €`,
+          zona === 'centro-nord' ? 'Centro-Nord / E-R' : 'Sud Italia',
+          fasciaIva === 'fino480' ? 'IVA 10% consumi / 22% fissi' : 'IVA 22% su tutto'
+        ],
+        rows: [
+          {
+            label: 'Quota per consumi',
+            detail: `${fmtNum.format(smc)} Smc × ${fmtUnit6.format(prezzoTotaleSmc)} €/Smc`,
+            amount: quotaConsumiTotale
+          },
+          {
+            label: '└ di cui spesa per la vendita di gas naturale',
+            detail: `${fmtUnit6.format(prezzoVenditaSmc)} €/Smc (PSV + 0,095 € Spread TIM)`,
+            amount: spesaVenditaConsumi,
+            type: 'sub-item'
+          },
+          {
+            label: '└ di cui spesa per la rete e oneri di sistema',
+            detail: `${fmtUnit6.format(prezzoReteSmc)} €/Smc`,
+            amount: spesaReteConsumi,
+            type: 'sub-item'
+          },
+          {
+            label: 'Quota fissa',
+            detail: `${mensilita} ${mensilita === 1 ? 'mese' : 'mesi'} × ${fmtEur.format(quotaFissaVenditaMese + quotaFissaReteMese)}/mese`,
+            amount: quotaFissaTotale
+          },
+          {
+            label: '└ di cui spesa per la vendita di gas naturale',
+            detail: `${fmtEur.format(quotaFissaVenditaMese)}/mese (89,00 €/anno già scontata 140 € − 51 €)`,
+            amount: quotaFissaVenditaTot,
+            type: 'sub-item'
+          },
+          {
+            label: '└ di cui spesa per la rete e oneri di sistema',
+            detail: `${fmtEur.format(quotaFissaReteMese)}/mese`,
+            amount: quotaFissaReteTot,
+            type: 'sub-item'
+          },
+          {
+            label: 'Accise ADM e Addizionale regionale',
+            detail: `Accise statali ${fmtEur.format(accise)} + Addizionale regionale ${fmtEur.format(addizionale)}`,
+            amount: totaleAcciseAdd
+          },
+          {
+            label: 'IVA',
+            detail: dettaglioIva,
+            amount: totaleIva
+          },
+          {
+            label: 'Totale Accise e IVA',
+            detail: 'Confrontabile con la riga "Accise e IVA" della bolletta TIM',
+            amount: totaleImposte,
+            type: 'subtotal'
+          },
+          {
+            label: 'TOTALE STIMATO BOLLETTA GAS',
+            detail: costoMedioSmc !== null
+              ? `Mese rif.: ${meseLabel} • Costo medio finito: ${fmtUnit4.format(costoMedioSmc)} €/Smc`
+              : `Mese rif.: ${meseLabel} • ${mensilita} ${mensilita === 1 ? 'mese' : 'mesi'}`,
+            amount: totaleBolletta,
+            type: 'grand-total'
+          }
+        ]
+      };
+    }
+
+    /**
+     * =========================================================================
+     * RENDER INTERFACCIA E RISULTATI
+     * =========================================================================
+     */
+    function render() {
+      try {
+        updateUIControls();
+
+        const res = state.activeTab === 'luce' ? calculateLuce() : calculateGas();
+
+        // Aggiorna box costo unitario Gas in diretta
+        const prezzoUnitGas = state.gas.psv + CONFIG.GAS.spreadSmc + CONFIG.GAS.reteOneriSmc;
+        document.getElementById('unitTotalGasVal').textContent = `${fmtUnit6.format(prezzoUnitGas)} €/Smc`;
+
+        // Aggiorna card risultato principale
+        document.getElementById('resultPeriodLabel').textContent = res.title;
+        document.getElementById('resultTotalValue').textContent = fmtEur.format(res.totale);
+        document.getElementById('avgCostLabel').textContent = res.avgLabel;
+        document.getElementById('avgCostVal').textContent = res.avgText;
+        document.getElementById('breakdownTitle').innerHTML = `<span>${res.breakdownTitle}</span>`;
+
+        document.getElementById('printSupplyTitle').textContent = state.activeTab === 'luce'
+          ? '⚡ Fornitura: Energia Elettrica (TIM Energia)'
+          : `🔥 Fornitura: Gas Naturale TIM Energia — ${CONFIG.GAS.storicoPsv2026[state.gas.meseKey]?.label || state.gas.meseKey}`;
+
+        // Chips riepilogo rapido
+        document.getElementById('resultMetaChips').innerHTML = res.chips
+          .map(c => `<span class="meta-chip">${c}</span>`)
+          .join('');
+
+        // Righe dettaglio Scontrino dell'Energia
+        document.getElementById('breakdownRows').innerHTML = res.rows.map(r => {
+          const cls = r.type ? `b-row ${r.type}` : 'b-row';
+          return `
+            <div class="${cls}">
+              <div class="b-label">
+                ${r.label}
+                ${r.detail ? `<span class="b-detail">${r.detail}</span>` : ''}
+              </div>
+              <div class="b-val">${fmtEur.format(r.amount)}</div>
+            </div>
+          `;
+        }).join('');
+
+        // Aggiorna sezione fissa sconti linea fissa TIM
+        renderPromoFissa();
+      } catch (err) {
+        console.error('Errore calcolo:', err);
+        showError('Impossibile completare il calcolo. Controlla i valori inseriti.');
+      }
+    }
+
+    function updateUIControls() {
+      const isLuce = state.activeTab === 'luce';
+      const L = CONFIG.LUCE;
+      const G = CONFIG.GAS;
+
+      // Tab
+      document.getElementById('tabBtnLuce').classList.toggle('active', isLuce);
+      document.getElementById('tabBtnLuce').setAttribute('aria-selected', String(isLuce));
+      document.getElementById('tabBtnGas').classList.toggle('active', !isLuce);
+      document.getElementById('tabBtnGas').setAttribute('aria-selected', String(!isLuce));
+      document.getElementById('panelLuce').classList.toggle('hidden', !isLuce);
+      document.getElementById('panelGas').classList.toggle('hidden', isLuce);
+
+      // Etichette dinamiche Luce da CONFIG
+      const totKwh = L.costoMateriaKwh + L.spesaReteOneriKwh;
+      document.getElementById('badgeTariffaLuce').textContent = `Tariffa: ${fmtUnit6.format(totKwh)} €/kWh`;
+      document.getElementById('hintQuotaFissaLuce').textContent = `Quota fissa: ${fmtEur.format(L.quotaFissaVenditaMese)}/mese`;
+      document.getElementById('hintPotenzaKw').textContent = `${fmtEur.format(L.quotaPotenzaPerKw)}/kW/mese`;
+
+      // Calcolo live quota potenza sotto i pulsanti kW
+      const potenzaEuro = state.luce.kw * L.quotaPotenzaPerKw * state.luce.mensilita;
+      document.getElementById('potenzaCalcNote').innerHTML =
+        `Quota potenza: ${fmtNum.format(state.luce.kw)} kW × ${fmtEur.format(L.quotaPotenzaPerKw)}/mese × ${state.luce.mensilita} ${state.luce.mensilita === 1 ? 'mese' : 'mesi'} = <strong>${fmtEur.format(potenzaEuro)}</strong>`;
+
+      // Pulsanti kW
+      document.querySelectorAll('.kw-pill').forEach(btn => {
+        btn.classList.toggle('active', parseFloat(btn.getAttribute('data-kw')) === state.luce.kw);
+      });
+
+      // Mensilità Luce
+      document.getElementById('luceMesi1').classList.toggle('active', state.luce.mensilita === 1);
+      document.getElementById('luceMesi2').classList.toggle('active', state.luce.mensilita === 2);
+
+      // Seconda casa
+      const scActive = state.luce.secondaCasa;
+      document.getElementById('toggleSecondaCasa').setAttribute('aria-checked', String(scActive));
+      document.getElementById('secondaCasaCard').classList.toggle('highlight-amber', scActive);
+      document.getElementById('secondaCasaNote').classList.toggle('hidden', !scActive);
+      document.getElementById('secondaCasaSubtext').textContent = scActive
+        ? 'Attivo = Domestico non residente (accisa piena su tutti i kWh)'
+        : 'Disattivo = Prima casa residente (esenzione accise attiva fino a 3 kW)';
+
+      // Switch Canone RAI
+      const swRai = document.getElementById('toggleRai');
+      swRai.setAttribute('aria-checked', String(state.luce.canoneRai));
+
+      const showRai2 = state.luce.canoneRai && state.luce.mensilita === 2;
+      document.getElementById('raiTwoMonthsBox').classList.toggle('hidden', !showRai2);
+      document.getElementById('toggleRaiTwoMonths').setAttribute('aria-checked', String(state.luce.canoneRaiDueMesi));
+
+      const raiSub = document.getElementById('raiSubtext');
+      if (!state.luce.canoneRai) {
+        raiSub.textContent = 'Esente IVA • Non incluso';
+      } else if (showRai2 && state.luce.canoneRaiDueMesi) {
+        raiSub.textContent = `Inclusi 2 mesi: +${fmtEur.format(L.canoneRaiMese * 2)} (esente IVA)`;
+      } else {
+        raiSub.textContent = `Incluso 1 mese: +${fmtEur.format(L.canoneRaiMese)} (esente IVA)`;
+      }
+
+      // Switcher IVA Luce
+      document.getElementById('btnIva10').classList.toggle('active', state.luce.iva === 0.10);
+      document.getElementById('btnIva22').classList.toggle('active', state.luce.iva === 0.22);
+
+      // Controlli Gas
+      const qfVendMese = G.quotaFissaVenditaAnnua / 12;
+      document.getElementById('hintQuotaFissaGas').textContent =
+        `Fissi: ${fmtEur.format(qfVendMese)} + ${fmtEur.format(G.quotaFissaReteMese)}/mese`;
+      document.getElementById('unitSpreadVal').textContent = `${fmtUnit6.format(G.spreadSmc)} €/Smc`;
+      document.getElementById('unitReteVal').textContent = `${fmtUnit6.format(G.reteOneriSmc)} €/Smc`;
+
+      document.getElementById('btnResetPsv').classList.toggle('hidden', !state.gas.psvCustom);
+      document.getElementById('gasMesi1').classList.toggle('active', state.gas.mensilita === 1);
+      document.getElementById('gasMesi2').classList.toggle('active', state.gas.mensilita === 2);
+      document.getElementById('btnZonaNord').classList.toggle('active', state.gas.zona === 'centro-nord');
+      document.getElementById('btnZonaSud').classList.toggle('active', state.gas.zona === 'sud');
+      document.getElementById('gasFasciaFino480').classList.toggle('active', state.gas.fasciaIva === 'fino480');
+      document.getElementById('gasFasciaOltre480').classList.toggle('active', state.gas.fasciaIva === 'oltre480');
+    }
+
+    function renderPromoFissa() {
+      [0, 2, 5].forEach(val => {
+        document.getElementById(`promoBtn${val}`).classList.toggle('active', state.promoFissaMese === val);
+      });
+
+      const box = document.getElementById('promoSummaryBox');
+      if (state.promoFissaMese === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      box.classList.remove('hidden');
+      const scontoAnnuo = state.promoFissaMese * 12;
+      document.getElementById('promoFormulaDesc').textContent = `${fmtEur.format(state.promoFissaMese)}/mese × 12 mesi`;
+      document.getElementById('promoAnnuoVal').textContent = fmtEur.format(scontoAnnuo);
+    }
+
+    function populateGasMonthSelect() {
+      const select = document.getElementById('selectGasMese');
+      const storico = CONFIG.GAS.storicoPsv2026;
+      const keys = Object.keys(storico).sort().reverse();
+      select.innerHTML = keys.map(k => {
+        const item = storico[k];
+        return `<option value="${k}">${item.label} — PSV ${fmtUnit6.format(item.psv)} €/Smc</option>`;
+      }).join('');
+      select.value = state.gas.meseKey;
+    }
+
+    /* ==================== EVENT HANDLER ==================== */
+    function setActiveTab(tab) {
+      state.activeTab = tab;
+      render();
+    }
+
+    function setLuceKw(kw) {
+      state.luce.kw = kw;
+      render();
+    }
+
+    function setLuceMesi(mesi) {
+      state.luce.mensilita = mesi;
+      if (mesi === 1) state.luce.canoneRaiDueMesi = false;
+      render();
+    }
+
+    function toggleSecondaCasa() {
+      state.luce.secondaCasa = !state.luce.secondaCasa;
+      // Quando attivato, disattiva automaticamente il Canone RAI (resta comunque riattivabile manualmente)
+      if (state.luce.secondaCasa) {
+        state.luce.canoneRai = false;
+        state.luce.canoneRaiDueMesi = false;
+      }
+      render();
+    }
+
+    function toggleCanoneRai() {
+      state.luce.canoneRai = !state.luce.canoneRai;
+      if (!state.luce.canoneRai) state.luce.canoneRaiDueMesi = false;
+      render();
+    }
+
+    function toggleCanoneRaiTwoMonths() {
+      state.luce.canoneRaiDueMesi = !state.luce.canoneRaiDueMesi;
+      render();
+    }
+
+    function setLuceIva(aliquota) {
+      state.luce.iva = aliquota;
+      render();
+    }
+
+    function onGasMonthChange(meseKey) {
+      const item = CONFIG.GAS.storicoPsv2026[meseKey];
+      if (!item) return;
+      state.gas.meseKey = meseKey;
+      state.gas.psv = item.psv;
+      state.gas.psvCustom = false;
+      document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
+      render();
+    }
+
+    function resetPsvToMonth() {
+      const item = CONFIG.GAS.storicoPsv2026[state.gas.meseKey];
+      if (!item) return;
+      state.gas.psv = item.psv;
+      state.gas.psvCustom = false;
+      document.getElementById('inputGasPsv').value = item.psv.toFixed(6);
+      render();
+    }
+
+    function setGasMesi(mesi) {
+      state.gas.mensilita = mesi;
+      render();
+    }
+
+    function setGasZona(zona) {
+      state.gas.zona = zona;
+      render();
+    }
+
+    function setGasFascia(fascia) {
+      state.gas.fasciaIva = fascia;
+      render();
+    }
+
+    function setPromoFissa(val) {
+      state.promoFissaMese = val;
+      render();
+    }
+
+    function toggleBreakdown() {
+      state.showBreakdown = !state.showBreakdown;
+      const panel = document.getElementById('breakdownPanel');
+      const btn = document.getElementById('btnToggleBreakdown');
+      const arrow = document.getElementById('breakdownArrow');
+      const label = document.getElementById('breakdownBtnLabel');
+
+      panel.classList.toggle('hidden', !state.showBreakdown);
+      btn.setAttribute('aria-expanded', String(state.showBreakdown));
+      arrow.textContent = state.showBreakdown ? '▴' : '▾';
+      label.textContent = state.showBreakdown
+        ? "Nascondi Scontrino dell'Energia"
+        : "Mostra Scontrino dell'Energia";
+    }
+
+    function resetCurrentTab() {
+      if (state.activeTab === 'luce') {
+        state.luce = {
+          kwh: 0,
+          mensilita: 1,
+          kw: 3,
+          secondaCasa: false,
+          canoneRai: false,
+          canoneRaiDueMesi: false,
+          iva: CONFIG.LUCE.ivaDefault
+        };
+        document.getElementById('inputKwh').value = '';
+      } else {
+        const defMonth = CONFIG.GAS.meseDefault;
+        state.gas = {
+          meseKey: defMonth,
+          psv: CONFIG.GAS.storicoPsv2026[defMonth].psv,
+          psvCustom: false,
+          smc: 0,
+          mensilita: 1,
+          zona: 'centro-nord',
+          fasciaIva: 'fino480'
+        };
+        document.getElementById('selectGasMese').value = defMonth;
+        document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
+        document.getElementById('inputSmc').value = '';
+      }
+      render();
+    }
+
+    function resetAll() {
+      state.promoFissaMese = 0;
+      state.luce = {
+        kwh: 0,
+        mensilita: 1,
+        kw: 3,
+        secondaCasa: false,
+        canoneRai: false,
+        canoneRaiDueMesi: false,
+        iva: CONFIG.LUCE.ivaDefault
+      };
+      const defMonth = CONFIG.GAS.meseDefault;
+      state.gas = {
+        meseKey: defMonth,
+        psv: CONFIG.GAS.storicoPsv2026[defMonth].psv,
+        psvCustom: false,
+        smc: 0,
+        mensilita: 1,
+        zona: 'centro-nord',
+        fasciaIva: 'fino480'
+      };
+      document.getElementById('inputKwh').value = '';
+      document.getElementById('inputSmc').value = '';
+      document.getElementById('selectGasMese').value = defMonth;
+      document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
+      render();
+    }
+
+    /* ==================== INIZIALIZZAZIONE ==================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Popola selettore mesi PSV 2026 e imposta default (Ottobre 2026)
+      populateGasMonthSelect();
+      document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
+
+      // Calcolo istantaneo sugli input numerici
+      document.getElementById('inputKwh').addEventListener('input', (e) => {
+        state.luce.kwh = parseSafeFloat(e.target.value);
+        render();
+      });
+
+      document.getElementById('inputSmc').addEventListener('input', (e) => {
+        state.gas.smc = parseSafeFloat(e.target.value);
+        render();
+      });
+
+      document.getElementById('inputGasPsv').addEventListener('input', (e) => {
+        const val = parseSafeFloat(e.target.value);
+        state.gas.psv = val;
+        const base = CONFIG.GAS.storicoPsv2026[state.gas.meseKey]?.psv ?? 0;
+        state.gas.psvCustom = Math.abs(val - base) > 0.000001;
+        render();
+      });
+
+      // Primo render immediato
+      render();
+
+      // Tentativo silenzioso di caricare ./psv-data.json su GitHub Pages
+      tryLoadLivePsvJson();
+    });
+  </script>
+</body>
+</html>
