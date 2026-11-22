@@ -41,6 +41,11 @@ MONTH_LABELS = {
     "12": "Dicembre",
 }
 
+MONTH_REGEX = (
+    r"\b(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|"
+    r"settembre|ottobre|novembre|dicembre)\s+(202[5-9])\b"
+)
+
 
 def fetch_html(url: str) -> str:
     req = urllib.request.Request(
@@ -65,34 +70,48 @@ def strip_html(html: str) -> str:
     return re.sub(r"\s+", " ", text)
 
 
-def parse_psv_entries(text: str) -> dict:
-    """
-    Cerca coppie tipo 'Ottobre 2026 ... 0,445 €/Smc'
-    e restituisce { '2026-10': 0.445 }.
-    """
-    pattern = re.compile(
-        r"\b(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|"
-        r"settembre|ottobre|novembre|dicembre)\s+(202[5-9])\b"
-        r".{0,80}?(\d[.,]\d{2,4})\s*€\s*/?\s*smc",
-        re.IGNORECASE,
-    )
-
+def parse_psv_entries(html: str) -> dict:
     found = {}
-    for match in pattern.finditer(text):
-        month_name = match.group(1).lower()
-        year = match.group(2)
-        raw_val = match.group(3).replace(",", ".")
+
+    # 1) Cerca prima nelle righe di tabella <tr> (es. "Ottobre 2026 | 0,945436")
+    for row in re.findall(r"<tr[^>]*>(.*?)</tr>", html, flags=re.S | re.I):
+        clean_row = strip_html(row)
+        m_date = re.search(MONTH_REGEX, clean_row, flags=re.I)
+        if not m_date:
+            continue
+
+        after_date = clean_row[m_date.end():]
+        m_val = re.search(r"\b(\d[.,]\d{2,6})\b", after_date)
+        if not m_val:
+            continue
 
         try:
-            value = round(float(raw_val), 4)
+            value = round(float(m_val.group(1).replace(",", ".")), 6)
         except ValueError:
             continue
 
-        # Controllo di sicurezza: un PSV realistico in €/Smc sta tra 0.10 e 3.00
         if 0.10 <= value <= 3.00:
-            key = f"{year}-{MONTH_MAP[month_name]}"
-            if key not in found:
-                found[key] = value
+            key = f"{m_date.group(2)}-{MONTH_MAP[m_date.group(1).lower()]}"
+            found.setdefault(key, value)
+
+    if found:
+        return found
+
+    # 2) Fallback su testo libero con unità esplicita "€/Smc"
+    clean_text = strip_html(html)
+    pattern = re.compile(
+        MONTH_REGEX + r".{0,80}?(\d[.,]\d{2,6})\s*€\s*/?\s*smc",
+        re.IGNORECASE,
+    )
+    for match in pattern.finditer(clean_text):
+        try:
+            value = round(float(match.group(3).replace(",", ".")), 6)
+        except ValueError:
+            continue
+
+        if 0.10 <= value <= 3.00:
+            key = f"{match.group(2)}-{MONTH_MAP[match.group(1).lower()]}"
+            found.setdefault(key, value)
 
     return found
 
@@ -116,17 +135,27 @@ def main():
     for url in SOURCES:
         try:
             html = fetch_html(url)
-            clean_text = strip_html(html)
-            entries = parse_psv_entries(clean_text)
+            entries = parse_psv_entries(html)
 
             if entries:
                 for ym, val in entries.items():
+                    existing = months.get(ym)
+                    # Non sovrascrive i mesi storici già marcati come definitivi
+                    if existing and existing.get("status") == "definitivo":
+                        continue
+
                     year, m_num = ym.split("-")
+                    is_provvisorio = ym >= current_ym
+                    label = f"{MONTH_LABELS[m_num]} {year}"
+                    if is_provvisorio:
+                        label += " (provvisorio)"
+
                     months[ym] = {
-                        "label": f"{MONTH_LABELS[m_num]} {year}",
+                        "label": label,
                         "psv": val,
-                        "status": "provvisorio" if ym >= current_ym else "definitivo",
+                        "status": "provvisorio" if is_provvisorio else "definitivo",
                     }
+
                 data["source"] = url
                 extracted_any = True
                 print(f"Estratti {len(entries)} mesi da {url}")
@@ -134,7 +163,6 @@ def main():
         except Exception as exc:
             print(f"Sorgente non raggiungibile ({url}): {exc}")
 
-    # Ordina i mesi cronologicamente
     data["months"] = dict(sorted(months.items()))
 
     if extracted_any:
