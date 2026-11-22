@@ -877,13 +877,47 @@
       color: var(--text-light);
     }
 
-    .promo-grid {
+    .promo-group {
+      margin-top: 14px;
+    }
+
+    .promo-group-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .promo-group-label {
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .promo-forever-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #FFFFFF;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
+      padding: 3px 9px;
+      border-radius: 999px;
+      box-shadow: 0 1px 3px rgba(0, 51, 141, 0.25);
+    }
+
+    .promo-grid-2 {
       display: grid;
       grid-template-columns: 1fr;
       gap: 10px;
     }
     @media (min-width: 560px) {
-      .promo-grid { grid-template-columns: repeat(3, 1fr); }
+      .promo-grid-2 { grid-template-columns: repeat(2, 1fr); }
     }
 
     .promo-btn {
@@ -891,6 +925,7 @@
       flex-direction: column;
       align-items: flex-start;
       justify-content: center;
+      width: 100%;
       padding: 14px;
       border: 2px solid var(--border);
       border-radius: var(--radius-md);
@@ -911,25 +946,53 @@
       box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
     }
 
+    .promo-btn.promo-forever {
+      border-color: var(--blue-border);
+      background: #F8FAFF;
+    }
+    .promo-btn.promo-forever:hover {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+    .promo-btn.promo-forever.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      box-shadow: 0 0 0 3px rgba(0, 51, 141, 0.15);
+    }
+
     .promo-btn-main {
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       font-weight: 800;
       color: var(--text);
     }
+    .promo-btn.promo-forever .promo-btn-main {
+      color: var(--blue-dark);
+    }
 
     .promo-btn-sub {
-      font-size: 0.78rem;
+      font-size: 0.79rem;
       color: var(--text-light);
       margin-top: 3px;
     }
 
     .promo-badge {
       display: inline-block;
-      margin-top: 7px;
+      margin-top: 8px;
       font-size: 0.78rem;
       font-weight: 800;
       color: var(--emerald);
       background: #D1FAE5;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .promo-badge-forever {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      background: var(--blue);
       padding: 3px 9px;
       border-radius: 6px;
     }
@@ -940,6 +1003,29 @@
       border: 1.5px solid var(--emerald-border);
       border-radius: var(--radius-md);
       padding: 16px;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .promo-summary.is-forever {
+      background: linear-gradient(135deg, #EEF3FC 0%, #F8FAFF 100%);
+      border-color: var(--blue-border);
+      border-left: 5px solid var(--blue);
+    }
+
+    .promo-sum-badge-forever {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #78350F;
+      background: #FEF3C7;
+      border: 1px solid #F59E0B;
+      padding: 4px 10px;
+      border-radius: 999px;
     }
 
     .promo-sum-hero {
@@ -950,12 +1036,37 @@
       flex-wrap: wrap;
     }
 
+    .promo-sum-label {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #065F46;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .promo-summary.is-forever .promo-sum-label {
+      color: var(--blue);
+    }
+
+    .promo-sum-formula {
+      font-size: 0.84rem;
+      color: #047857;
+      margin-top: 3px;
+      font-weight: 500;
+    }
+    .promo-summary.is-forever .promo-sum-formula {
+      color: var(--blue-mid);
+    }
+
     .promo-annuo-big {
-      font-size: 1.6rem;
+      font-size: 1.55rem;
       font-weight: 800;
       color: var(--emerald);
       font-variant-numeric: tabular-nums;
       line-height: 1.1;
+      white-space: nowrap;
+    }
+    .promo-summary.is-forever .promo-annuo-big {
+      color: var(--blue);
     }
 
     .promo-sum-note {
@@ -965,6 +1076,10 @@
       font-size: 0.82rem;
       color: #065F46;
       line-height: 1.45;
+    }
+    .promo-summary.is-forever .promo-sum-note {
+      border-top-color: var(--blue-border);
+      color: var(--blue-dark);
     }
 
     /* Azioni fondo pagina */
@@ -1483,44 +1598,76 @@
           <div class="promo-icon" aria-hidden="true">🎁</div>
           <div>
             <h2 class="promo-title">Ulteriori sconti su Linea Fissa TIM</h2>
-            <p class="promo-subtitle">Seleziona la promozione attiva per mostrare al cliente il risparmio extra annuo</p>
+            <p class="promo-subtitle">Seleziona la promozione attiva per mostrare al cliente il risparmio extra sulla linea fissa</p>
           </div>
         </div>
 
-        <div class="promo-grid" role="radiogroup" aria-label="Ulteriori sconti su Linea Fissa TIM">
-          <button type="button" id="promoBtn0" class="promo-btn active" onclick="setPromoFissa(0)">
+        <div role="radiogroup" aria-label="Ulteriori sconti su Linea Fissa TIM">
+          <!-- Opzione 1: Nessuno -->
+          <button type="button" id="promoBtn-none" class="promo-btn active" role="radio" aria-checked="true" onclick="setPromoFissa('none')">
             <span class="promo-btn-main">Nessuno</span>
-            <span class="promo-btn-sub">0 €/anno extra</span>
+            <span class="promo-btn-sub">Nessuno sconto extra su linea fissa (0 €)</span>
           </button>
 
-          <button type="button" id="promoBtn2" class="promo-btn" onclick="setPromoFissa(2)">
-            <span class="promo-btn-main">Promo 2 €/mese × 12 mesi</span>
-            <span class="promo-badge">Risparmio annuo: 24,00 €</span>
-          </button>
+          <!-- Gruppo 1: Sconti per 12 mesi -->
+          <div class="promo-group">
+            <div class="promo-group-header">
+              <span class="promo-group-label">Sconti per 12 mesi</span>
+            </div>
+            <div class="promo-grid-2">
+              <button type="button" id="promoBtn-2x12" class="promo-btn" role="radio" aria-checked="false" onclick="setPromoFissa('2x12')">
+                <span class="promo-btn-main">Promo 2 €/mese × 12 mesi</span>
+                <span class="promo-btn-sub">Solo Luce o Solo Gas</span>
+                <span class="promo-badge">Totale in 12 mesi: 24,00 €</span>
+              </button>
 
-          <button type="button" id="promoBtn5" class="promo-btn" onclick="setPromoFissa(5)">
-            <span class="promo-btn-main">Promo 5 €/mese × 12 mesi</span>
-            <span class="promo-badge">Risparmio annuo: 60,00 €</span>
-          </button>
+              <button type="button" id="promoBtn-4x12" class="promo-btn" role="radio" aria-checked="false" onclick="setPromoFissa('4x12')">
+                <span class="promo-btn-main">Promo 4 €/mese × 12 mesi</span>
+                <span class="promo-btn-sub">Luce + Gas (2 € + 2 €/mese)</span>
+                <span class="promo-badge">Totale in 12 mesi: 48,00 €</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Gruppo 2: Sconti PER SEMPRE -->
+          <div class="promo-group">
+            <div class="promo-group-header">
+              <span class="promo-group-label">Sconti fissi</span>
+              <span class="promo-forever-pill">★ PER SEMPRE</span>
+            </div>
+            <div class="promo-grid-2">
+              <button type="button" id="promoBtn-5forever" class="promo-btn promo-forever" role="radio" aria-checked="false" onclick="setPromoFissa('5forever')">
+                <span class="promo-btn-main">Promo 5 €/mese per sempre</span>
+                <span class="promo-btn-sub">Solo Luce o Solo Gas</span>
+                <span class="promo-badge-forever">60,00 €/anno — PER SEMPRE</span>
+              </button>
+
+              <button type="button" id="promoBtn-7forever" class="promo-btn promo-forever" role="radio" aria-checked="false" onclick="setPromoFissa('7forever')">
+                <span class="promo-btn-main">Promo 7 €/mese per sempre</span>
+                <span class="promo-btn-sub">Luce + Gas (5 € + 2 €/mese)</span>
+                <span class="promo-badge-forever">84,00 €/anno — PER SEMPRE</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Riepilogo risparmio extra sulla linea fissa -->
+        <!-- Riepilogo dinamico risparmio extra sulla linea fissa -->
         <div id="promoSummaryBox" class="promo-summary hidden">
+          <div id="promoForeverBadge" class="promo-sum-badge-forever hidden">★ VALIDO PER SEMPRE</div>
+
           <div class="promo-sum-hero">
             <div>
-              <div style="font-size: 0.82rem; font-weight: 700; color: #065F46; text-transform: uppercase; letter-spacing: 0.03em;">
-                Risparmio totale annuo sulla linea fissa TIM
+              <div id="promoSummaryLabel" class="promo-sum-label">
+                Risparmio totale in 12 mesi sulla linea fissa TIM
               </div>
-              <div id="promoFormulaDesc" style="font-size: 0.84rem; color: #047857; margin-top: 2px;">
+              <div id="promoFormulaDesc" class="promo-sum-formula">
                 2,00 €/mese × 12 mesi
               </div>
             </div>
             <div id="promoAnnuoVal" class="promo-annuo-big">24,00 €</div>
           </div>
 
-          <p class="promo-sum-note">
-            <strong>Nota per il cliente:</strong> questo sconto viene applicato direttamente sulla <strong>fattura della linea fissa TIM</strong>, in aggiunta agli sconti già inclusi nella bolletta energetica sopra calcolata.
-          </p>
+          <p id="promoSummaryNote" class="promo-sum-note"></p>
         </div>
       </div>
     </section>
@@ -1617,12 +1764,49 @@
     };
 
     /**
+     * Catalogo promozioni extra su Linea Fissa TIM (12 mesi vs PER SEMPRE)
+     */
+    const PROMO_FISSA_OPTIONS = {
+      'none': {
+        isForever: false
+      },
+      '2x12': {
+        isForever: false,
+        label: 'Risparmio totale in 12 mesi sulla linea fissa TIM',
+        formula: '2,00 €/mese × 12 mesi (singola fornitura: Luce o Gas)',
+        amountText: '24,00 €',
+        noteHtml: '<strong>Nota per il cliente:</strong> questo sconto viene applicato direttamente sulla <strong>fattura della linea fissa TIM per 12 mesi</strong>, in aggiunta agli sconti già inclusi nella bolletta energetica sopra calcolata.'
+      },
+      '4x12': {
+        isForever: false,
+        label: 'Risparmio totale in 12 mesi sulla linea fissa TIM',
+        formula: '4,00 €/mese × 12 mesi (doppia fornitura Luce + Gas: 2 € + 2 €)',
+        amountText: '48,00 €',
+        noteHtml: '<strong>Nota per il cliente:</strong> questo sconto viene applicato direttamente sulla <strong>fattura della linea fissa TIM per 12 mesi</strong>, in aggiunta agli sconti già inclusi nella bolletta energetica sopra calcolata.'
+      },
+      '5forever': {
+        isForever: true,
+        label: 'Risparmio annuo PER SEMPRE sulla linea fissa TIM',
+        formula: '5,00 €/mese × 12 mesi — sconto fisso per sempre (solo Luce o solo Gas)',
+        amountText: '60,00 €/anno',
+        noteHtml: '<strong>Nota per il cliente:</strong> questo sconto non scade dopo 12 mesi ma resta attivo <strong>per sempre</strong> sulla fattura della linea fissa TIM finché restano attive le offerte, in aggiunta agli sconti già inclusi nella bolletta energetica sopra calcolata.'
+      },
+      '7forever': {
+        isForever: true,
+        label: 'Risparmio annuo PER SEMPRE sulla linea fissa TIM',
+        formula: '7,00 €/mese × 12 mesi — sconto fisso per sempre (Luce + Gas: 5 € + 2 €)',
+        amountText: '84,00 €/anno',
+        noteHtml: '<strong>Nota per il cliente:</strong> questo sconto non scade dopo 12 mesi ma resta attivo <strong>per sempre</strong> sulla fattura della linea fissa TIM finché restano attive le offerte, in aggiunta agli sconti già inclusi nella bolletta energetica sopra calcolata.'
+      }
+    };
+
+    /**
      * Stato reattivo dell'applicazione
      */
     const state = {
       activeTab: 'luce',       // 'luce' | 'gas'
       showBreakdown: true,     // Scontrino dell'Energia aperto di default per massima chiarezza
-      promoFissaMese: 0,       // 0 | 2 | 5 (€/mese × 12 mesi)
+      promoFissaKey: 'none',   // 'none' | '2x12' | '4x12' | '5forever' | '7forever'
       luce: {
         kwh: 0,
         mensilita: 1,
@@ -1827,7 +2011,7 @@
         importoRai = L.canoneRaiMese * mesiRai;
       }
 
-      // 7. Totale bolletta e costo medio al kWh (escluso Canone RAI per valore reale energia, o su totale energia)
+      // 7. Totale bolletta e costo medio al kWh (escluso Canone RAI per valore reale energia)
       const totaleEnergia = imponibileIva + importoIva;
       const totaleBolletta = totaleEnergia + importoRai;
       const costoMedioKwh = kwh > 0 ? (totaleEnergia / kwh) : null;
@@ -2198,20 +2382,33 @@
     }
 
     function renderPromoFissa() {
-      [0, 2, 5].forEach(val => {
-        document.getElementById(`promoBtn${val}`).classList.toggle('active', state.promoFissaMese === val);
+      const keys = Object.keys(PROMO_FISSA_OPTIONS);
+      const currentKey = PROMO_FISSA_OPTIONS[state.promoFissaKey] ? state.promoFissaKey : 'none';
+
+      keys.forEach(key => {
+        const btn = document.getElementById(`promoBtn-${key}`);
+        if (btn) {
+          const isActive = currentKey === key;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-checked', String(isActive));
+        }
       });
 
       const box = document.getElementById('promoSummaryBox');
-      if (state.promoFissaMese === 0) {
+      if (currentKey === 'none') {
         box.classList.add('hidden');
         return;
       }
 
+      const promo = PROMO_FISSA_OPTIONS[currentKey];
       box.classList.remove('hidden');
-      const scontoAnnuo = state.promoFissaMese * 12;
-      document.getElementById('promoFormulaDesc').textContent = `${fmtEur.format(state.promoFissaMese)}/mese × 12 mesi`;
-      document.getElementById('promoAnnuoVal').textContent = fmtEur.format(scontoAnnuo);
+      box.classList.toggle('is-forever', promo.isForever);
+
+      document.getElementById('promoForeverBadge').classList.toggle('hidden', !promo.isForever);
+      document.getElementById('promoSummaryLabel').textContent = promo.label;
+      document.getElementById('promoFormulaDesc').textContent = promo.formula;
+      document.getElementById('promoAnnuoVal').textContent = promo.amountText;
+      document.getElementById('promoSummaryNote').innerHTML = promo.noteHtml;
     }
 
     function populateGasMonthSelect() {
@@ -2302,8 +2499,8 @@
       render();
     }
 
-    function setPromoFissa(val) {
-      state.promoFissaMese = val;
+    function setPromoFissa(key) {
+      state.promoFissaKey = PROMO_FISSA_OPTIONS[key] ? key : 'none';
       render();
     }
 
@@ -2353,7 +2550,7 @@
     }
 
     function resetAll() {
-      state.promoFissaMese = 0;
+      state.promoFissaKey = 'none';
       state.luce = {
         kwh: 0,
         mensilita: 1,
