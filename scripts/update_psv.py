@@ -7,8 +7,8 @@ from pathlib import Path
 DATA_FILE = Path("psv-data.json")
 
 SOURCES = [
-    "https://luce-gas.it/guida/mercato/andamento-prezzo/gas-psv",
-    "https://selectra.net/energia/guide/mercato/psv",
+    "https://www.powergas.it/indici/psv/",
+    "https://luce-gas.it/guida/mercato/andamento-prezzo/gas-metano",
 ]
 
 MONTH_MAP = {
