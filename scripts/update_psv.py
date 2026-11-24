@@ -6,10 +6,10 @@ from pathlib import Path
 
 DATA_FILE = Path("psv-data.json")
 
-SOURCES = [
-    "https://www.powergas.it/indici/psv/",
-    "https://luce-gas.it/guida/mercato/andamento-prezzo/gas-metano",
-]
+# Powergas: mesi già chiusi con 6 decimali ufficiali (PCS 38,52 MJ/Smc)
+CLOSED_MONTHS_URL = "https://www.powergas.it/indici/psv/"
+# Luce-Gas.it: media mensile provvisoria del mese in corso aggiornata ogni giorno
+LIVE_MONTH_URL = "https://luce-gas.it/guida/mercato/andamento-prezzo/gas-metano"
 
 MONTH_MAP = {
     "gennaio": "01",
@@ -43,7 +43,7 @@ MONTH_LABELS = {
 
 MONTH_REGEX = (
     r"\b(gennaio|febbraio|marzo|aprile|maggio|giugno|luglio|agosto|"
-    r"settembre|ottobre|novembre|dicembre)\s+(202[5-9])\b"
+    r"settembre|ottobre|novembre|dicembre)\s+(202[6-9])\b"
 )
 
 
@@ -59,7 +59,7 @@ def fetch_html(url: str) -> str:
             "Accept-Language": "it-IT,it;q=0.9",
         },
     )
-    with urllib.request.urlopen(req, timeout=20) as resp:
+    with urllib.request.urlopen(req, timeout=25) as resp:
         return resp.read().decode("utf-8", errors="ignore")
 
 
@@ -73,7 +73,7 @@ def strip_html(html: str) -> str:
 def parse_psv_entries(html: str) -> dict:
     found = {}
 
-    # 1) Cerca prima nelle righe di tabella <tr> (es. "Ottobre 2026 | 0,945436")
+    # 1) Cerca nelle righe di tabella <tr> (es. "Ottobre 2026 | 0,945436" o "PSV novembre 2026 | 0,955")
     for row in re.findall(r"<tr[^>]*>(.*?)</tr>", html, flags=re.S | re.I):
         clean_row = strip_html(row)
         m_date = re.search(MONTH_REGEX, clean_row, flags=re.I)
@@ -130,50 +130,67 @@ def main():
     months = data.get("months", {})
     today = datetime.now(timezone.utc)
     current_ym = today.strftime("%Y-%m")
-    extracted_any = False
+    sources_ok = []
 
-    for url in SOURCES:
-        try:
-            html = fetch_html(url)
-            entries = parse_psv_entries(html)
+    # 1) Leggi i mesi ufficialmente chiusi da Powergas (6 decimali)
+    try:
+        html_closed = fetch_html(CLOSED_MONTHS_URL)
+        closed_entries = parse_psv_entries(html_closed)
+        print(f"[Powergas] Estratti {len(closed_entries)} mesi")
+        if closed_entries:
+            sources_ok.append(CLOSED_MONTHS_URL)
+            for ym, val in closed_entries.items():
+                existing = months.get(ym)
+                if existing and existing.get("status") == "definitivo":
+                    continue
+                year, m_num = ym.split("-")
+                is_provvisorio = ym >= current_ym
+                label = f"{MONTH_LABELS[m_num]} {year}"
+                if is_provvisorio:
+                    label += " (provvisorio)"
+                months[ym] = {
+                    "label": label,
+                    "psv": val,
+                    "status": "provvisorio" if is_provvisorio else "definitivo",
+                }
+    except Exception as exc:
+        print(f"[Powergas] Errore: {exc}")
 
-            if entries:
-                for ym, val in entries.items():
-                    existing = months.get(ym)
-                    # Non sovrascrive i mesi storici già marcati come definitivi
-                    if existing and existing.get("status") == "definitivo":
-                        continue
-
+    # 2) Leggi SEMPRE anche Luce-Gas.it per aggiornare il mese in corso (provvisorio)
+    try:
+        html_live = fetch_html(LIVE_MONTH_URL)
+        live_entries = parse_psv_entries(html_live)
+        print(f"[Luce-Gas.it] Estratti {len(live_entries)} mesi")
+        if live_entries:
+            sources_ok.append(LIVE_MONTH_URL)
+            for ym, val in live_entries.items():
+                existing = months.get(ym)
+                # Non sovrascrive mai i mesi già consolidati come definitivi
+                if existing and existing.get("status") == "definitivo":
+                    continue
+                # Aggiorna il mese in corso (o eventuali mesi non ancora chiusi su Powergas)
+                if ym >= current_ym or not existing:
                     year, m_num = ym.split("-")
-                    is_provvisorio = ym >= current_ym
-                    label = f"{MONTH_LABELS[m_num]} {year}"
-                    if is_provvisorio:
-                        label += " (provvisorio)"
-
                     months[ym] = {
-                        "label": label,
+                        "label": f"{MONTH_LABELS[m_num]} {year} (provvisorio)",
                         "psv": val,
-                        "status": "provvisorio" if is_provvisorio else "definitivo",
+                        "status": "provvisorio",
                     }
-
-                data["source"] = url
-                extracted_any = True
-                print(f"Estratti {len(entries)} mesi da {url}")
-                break
-        except Exception as exc:
-            print(f"Sorgente non raggiungibile ({url}): {exc}")
+    except Exception as exc:
+        print(f"[Luce-Gas.it] Errore: {exc}")
 
     data["months"] = dict(sorted(months.items()))
 
-    if extracted_any:
+    if sources_ok:
+        data["source"] = " + ".join(sources_ok)
         data["updatedAt"] = today.strftime("%Y-%m-%d")
         DATA_FILE.write_text(
             json.dumps(data, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8",
         )
-        print("psv-data.json aggiornato correttamente.")
+        print(f"psv-data.json salvato con updatedAt={data['updatedAt']}")
     else:
-        print("Nessun nuovo dato estratto: psv-data.json lasciato invariato.")
+        print("Nessuna sorgente raggiungibile: psv-data.json lasciato invariato.")
 
 
 if __name__ == "__main__":
