@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-23",
-  "source": "https://www.powergas.it/indici/psv/",
+  "updatedAt": "2026-11-24",
+  "source": "https://www.powergas.it/indici/psv/ + https://luce-gas.it/guida/mercato/andamento-prezzo/gas-metano",
   "unit": "EUR/Smc",
   "months": {
     "2025-11": {
@@ -65,7 +65,7 @@
     },
     "2026-11": {
       "label": "Novembre 2026 (provvisorio)",
-      "psv": 0.92057,
+      "psv": 0.955,
       "status": "provvisorio"
     }
   }
