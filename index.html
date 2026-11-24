@@ -606,6 +606,31 @@
       padding: 2px 4px;
     }
 
+    .gas-months-stack {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .month-second-wrap {
+      background: #F8FAFC;
+      border: 1.5px dashed var(--blue-border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+
+    .psv-avg-formula {
+      font-size: 0.76rem;
+      color: var(--blue-mid);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--blue-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin: 4px 0 8px;
+      line-height: 1.35;
+      font-variant-numeric: tabular-nums;
+    }
+
     /* ==================== CARD RISULTATO PRINCIPALE (SCONTRINO DELL'ENERGIA) ==================== */
     .result-card {
       background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
@@ -1420,17 +1445,44 @@
           <span class="field-hint" id="hintQuotaFissaGas">Fissi: 7,42 € + 3,98 €/mese</span>
         </div>
 
-        <!-- 1. Selettore Mese di riferimento (2026) -->
+        <!-- 1. Mensilità bolletta Gas -->
         <div class="field-group">
           <div class="field-header">
-            <label for="selectGasMese" class="field-label">Mese di riferimento (2026)</label>
+            <span class="field-label">Mensilità bolletta</span>
+            <span id="hintGasBimestre" class="field-hint hidden">Media PSV su 2 mesi</span>
           </div>
-          <select id="selectGasMese" class="select-control" onchange="onGasMonthChange(this.value)">
-            <!-- Popolato da JS -->
-          </select>
+          <div class="pill-grid-2" role="group" aria-label="Mensilità bolletta gas">
+            <button type="button" id="gasMesi1" class="pill-btn active" onclick="setGasMesi(1)">1 Mese</button>
+            <button type="button" id="gasMesi2" class="pill-btn" onclick="setGasMesi(2)">2 Mesi <small>Bimestrale</small></button>
+          </div>
         </div>
 
-        <!-- 2. Consumo Gas (Smc) -->
+        <!-- 2. Selettore Mese/i di riferimento (2026) -->
+        <div class="field-group">
+          <div class="gas-months-stack">
+            <div>
+              <div class="field-header">
+                <label for="selectGasMese" id="labelGasMese1" class="field-label">Mese di riferimento (2026)</label>
+              </div>
+              <select id="selectGasMese" class="select-control" onchange="onGasMonthChange(this.value)">
+                <!-- Popolato da JS -->
+              </select>
+            </div>
+
+            <!-- Visibile SOLO quando è selezionato "2 Mesi (Bimestrale)" -->
+            <div id="gasMonth2Group" class="month-second-wrap hidden">
+              <div class="field-header">
+                <label for="selectGasMese2" class="field-label" style="color: var(--blue);">2° Mese di riferimento (2026)</label>
+                <span class="field-hint">Calcolo su media PSV</span>
+              </div>
+              <select id="selectGasMese2" class="select-control" onchange="onGasMonth2Change(this.value)">
+                <!-- Popolato da JS -->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Consumo Gas (Smc) -->
         <div class="field-group">
           <div class="field-header">
             <label for="inputSmc" class="field-label">Consumo Gas (Smc)</label>
@@ -1449,24 +1501,13 @@
           </div>
         </div>
 
-        <!-- Mensilità bolletta Gas -->
-        <div class="field-group">
-          <div class="field-header">
-            <span class="field-label">Mensilità bolletta</span>
-          </div>
-          <div class="pill-grid-2" role="group" aria-label="Mensilità bolletta gas">
-            <button type="button" id="gasMesi1" class="pill-btn active" onclick="setGasMesi(1)">1 Mese</button>
-            <button type="button" id="gasMesi2" class="pill-btn" onclick="setGasMesi(2)">2 Mesi <small>Bimestrale</small></button>
-          </div>
-        </div>
-
-        <!-- 3. PSV del mese editabile + Box trasparente costo al Smc -->
+        <!-- 4. PSV del mese / medio bimestre editabile + Box trasparente costo al Smc -->
         <div class="unit-cost-box">
           <p class="unit-cost-title">Costo trasparente al metro cubo (escl. imposte)</p>
 
           <div class="unit-row">
             <div>
-              <label for="inputGasPsv" style="font-weight: 700;">PSV del mese (€/Smc)</label>
+              <label for="inputGasPsv" id="gasPsvLabel" style="font-weight: 700;">PSV del mese (€/Smc)</label>
               <button type="button" id="btnResetPsv" class="link-reset-psv hidden" onclick="resetPsvToMonth()">
                 ripristina mese
               </button>
@@ -1483,6 +1524,8 @@
               <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">€/Smc</span>
             </div>
           </div>
+
+          <div id="gasPsvAvgFormula" class="psv-avg-formula hidden"></div>
 
           <div class="unit-row">
             <span>+ Spread TIM Energia</span>
@@ -1818,6 +1861,7 @@
       },
       gas: {
         meseKey: CONFIG.GAS.meseDefault,
+        meseKey2: '2026-09',   // Secondo mese usato solo in modalità bimestrale (2 mesi)
         psv: CONFIG.GAS.storicoPsv2026[CONFIG.GAS.meseDefault].psv,
         psvCustom: false,
         smc: 0,
@@ -1826,6 +1870,41 @@
         fasciaIva: 'fino480'   // 'fino480' | 'oltre480'
       }
     };
+
+    /* ==================== HELPER MESI E MEDIA PSV GAS ==================== */
+    function getSortedGasMonthKeys() {
+      return Object.keys(CONFIG.GAS.storicoPsv2026).sort().reverse();
+    }
+
+    function getPreviousMonthKey(meseKey) {
+      const keys = getSortedGasMonthKeys();
+      const idx = keys.indexOf(meseKey);
+      if (idx === -1) return keys[1] || keys[0] || meseKey;
+      if (idx + 1 < keys.length) return keys[idx + 1];
+      return keys[idx - 1] || meseKey;
+    }
+
+    function getExpectedGasPsv() {
+      const storico = CONFIG.GAS.storicoPsv2026;
+      const p1 = storico[state.gas.meseKey]?.psv ?? 0;
+      if (state.gas.mensilita === 2) {
+        const p2 = storico[state.gas.meseKey2]?.psv ?? p1;
+        return (p1 + p2) / 2;
+      }
+      return p1;
+    }
+
+    function getGasPeriodLabel() {
+      const storico = CONFIG.GAS.storicoPsv2026;
+      const m1Key = state.gas.meseKey;
+      const label1 = storico[m1Key]?.label || m1Key;
+      if (state.gas.mensilita !== 2) return label1;
+
+      const m2Key = state.gas.meseKey2;
+      const label2 = storico[m2Key]?.label || m2Key;
+      if (m1Key === m2Key) return `${label1} (2 mesi)`;
+      return m1Key < m2Key ? `${label1} + ${label2}` : `${label2} + ${label1}`;
+    }
 
     /* ==================== FORMATTATORI ITALIANI ==================== */
     const fmtEur = new Intl.NumberFormat('it-IT', {
@@ -1920,7 +1999,7 @@
         if (updated) {
           populateGasMonthSelect();
           if (!state.gas.psvCustom && storico[state.gas.meseKey]) {
-            state.gas.psv = storico[state.gas.meseKey].psv;
+            state.gas.psv = getExpectedGasPsv();
             document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
           }
 
@@ -2172,7 +2251,8 @@
       const totaleBolletta = quotaConsumiTotale + quotaFissaTotale + totaleImposte;
       const costoMedioSmc = smc > 0 ? (totaleBolletta / smc) : null;
 
-      const meseLabel = G.storicoPsv2026[meseKey] ? G.storicoPsv2026[meseKey].label : meseKey;
+      const meseLabel = getGasPeriodLabel();
+      const isBimestre = mensilita === 2;
 
       return {
         totale: totaleBolletta,
@@ -2182,7 +2262,7 @@
         breakdownTitle: `Scontrino dell'Energia TIM — Gas (${meseLabel})`,
         chips: [
           `${fmtNum.format(smc)} Smc`,
-          `PSV ${fmtUnit4.format(psv)} €`,
+          `${isBimestre ? 'PSV medio' : 'PSV'} ${fmtUnit4.format(psv)} €`,
           zona === 'centro-nord' ? 'Centro-Nord / E-R' : 'Sud Italia',
           fasciaIva === 'fino480' ? 'IVA 10% consumi / 22% fissi' : 'IVA 22% su tutto'
         ],
@@ -2194,7 +2274,7 @@
           },
           {
             label: '└ di cui spesa per la vendita di gas naturale',
-            detail: `${fmtUnit6.format(prezzoVenditaSmc)} €/Smc (PSV + 0,095 € Spread TIM)`,
+            detail: `${fmtUnit6.format(prezzoVenditaSmc)} €/Smc (${isBimestre ? 'PSV medio bimestre' : 'PSV'} + 0,095 € Spread TIM)`,
             amount: spesaVenditaConsumi,
             type: 'sub-item'
           },
@@ -2273,7 +2353,7 @@
 
         document.getElementById('printSupplyTitle').textContent = state.activeTab === 'luce'
           ? '⚡ Fornitura: Energia Elettrica (TIM Energia)'
-          : `🔥 Fornitura: Gas Naturale TIM Energia — ${CONFIG.GAS.storicoPsv2026[state.gas.meseKey]?.label || state.gas.meseKey}`;
+          : `🔥 Fornitura: Gas Naturale TIM Energia — ${getGasPeriodLabel()}`;
 
         // Chips riepilogo rapido
         document.getElementById('resultMetaChips').innerHTML = res.chips
@@ -2367,12 +2447,44 @@
 
       // Controlli Gas
       const qfVendMese = G.quotaFissaVenditaAnnua / 12;
+      const isGasBimestre = state.gas.mensilita === 2;
       document.getElementById('hintQuotaFissaGas').textContent =
         `Fissi: ${fmtEur.format(qfVendMese)} + ${fmtEur.format(G.quotaFissaReteMese)}/mese`;
       document.getElementById('unitSpreadVal').textContent = `${fmtUnit6.format(G.spreadSmc)} €/Smc`;
       document.getElementById('unitReteVal').textContent = `${fmtUnit6.format(G.reteOneriSmc)} €/Smc`;
 
-      document.getElementById('btnResetPsv').classList.toggle('hidden', !state.gas.psvCustom);
+      // Etichette e visibilità 2° mese Gas (bimestrale)
+      document.getElementById('hintGasBimestre').classList.toggle('hidden', !isGasBimestre);
+      document.getElementById('labelGasMese1').textContent = isGasBimestre
+        ? '1° Mese di riferimento (2026)'
+        : 'Mese di riferimento (2026)';
+      document.getElementById('gasMonth2Group').classList.toggle('hidden', !isGasBimestre);
+
+      // Etichetta PSV, tasto ripristino e formula della media bimestrale
+      document.getElementById('gasPsvLabel').textContent = isGasBimestre
+        ? 'PSV medio bimestre (€/Smc)'
+        : 'PSV del mese (€/Smc)';
+      const btnResetPsv = document.getElementById('btnResetPsv');
+      btnResetPsv.textContent = isGasBimestre ? 'ripristina media' : 'ripristina mese';
+      btnResetPsv.classList.toggle('hidden', !state.gas.psvCustom);
+
+      const avgBox = document.getElementById('gasPsvAvgFormula');
+      if (isGasBimestre) {
+        const m1 = G.storicoPsv2026[state.gas.meseKey];
+        const m2 = G.storicoPsv2026[state.gas.meseKey2];
+        const media = getExpectedGasPsv();
+        if (m1 && m2) {
+          avgBox.innerHTML = state.gas.psvCustom
+            ? `Media automatica (${m1.label}: ${fmtUnit6.format(m1.psv)} € + ${m2.label}: ${fmtUnit6.format(m2.psv)} €) / 2 = <strong>${fmtUnit6.format(media)} €/Smc</strong> &bull; <em>Valore personalizzato attivo</em>`
+            : `Media bimestre: (${m1.label}: <strong>${fmtUnit6.format(m1.psv)} €</strong> + ${m2.label}: <strong>${fmtUnit6.format(m2.psv)} €</strong>) ÷ 2 = <strong>${fmtUnit6.format(media)} €/Smc</strong>`;
+          avgBox.classList.remove('hidden');
+        } else {
+          avgBox.classList.add('hidden');
+        }
+      } else {
+        avgBox.classList.add('hidden');
+      }
+
       document.getElementById('gasMesi1').classList.toggle('active', state.gas.mensilita === 1);
       document.getElementById('gasMesi2').classList.toggle('active', state.gas.mensilita === 2);
       document.getElementById('btnZonaNord').classList.toggle('active', state.gas.zona === 'centro-nord');
@@ -2412,14 +2524,25 @@
     }
 
     function populateGasMonthSelect() {
-      const select = document.getElementById('selectGasMese');
+      const select1 = document.getElementById('selectGasMese');
+      const select2 = document.getElementById('selectGasMese2');
       const storico = CONFIG.GAS.storicoPsv2026;
-      const keys = Object.keys(storico).sort().reverse();
-      select.innerHTML = keys.map(k => {
+      const keys = getSortedGasMonthKeys();
+      const optionsHtml = keys.map(k => {
         const item = storico[k];
         return `<option value="${k}">${item.label} — PSV ${fmtUnit6.format(item.psv)} €/Smc</option>`;
       }).join('');
-      select.value = state.gas.meseKey;
+
+      select1.innerHTML = optionsHtml;
+      select1.value = storico[state.gas.meseKey] ? state.gas.meseKey : keys[0];
+
+      if (select2) {
+        select2.innerHTML = optionsHtml;
+        if (!storico[state.gas.meseKey2]) {
+          state.gas.meseKey2 = getPreviousMonthKey(state.gas.meseKey);
+        }
+        select2.value = state.gas.meseKey2;
+      }
     }
 
     /* ==================== EVENT HANDLER ==================== */
@@ -2469,7 +2592,39 @@
       const item = CONFIG.GAS.storicoPsv2026[meseKey];
       if (!item) return;
       state.gas.meseKey = meseKey;
-      state.gas.psv = item.psv;
+      state.gas.psv = getExpectedGasPsv();
+      state.gas.psvCustom = false;
+      document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
+      render();
+    }
+
+    function onGasMonth2Change(meseKey2) {
+      const item = CONFIG.GAS.storicoPsv2026[meseKey2];
+      if (!item) return;
+      state.gas.meseKey2 = meseKey2;
+      state.gas.psv = getExpectedGasPsv();
+      state.gas.psvCustom = false;
+      document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
+      render();
+    }
+
+    function resetPsvToMonth() {
+      state.gas.psv = getExpectedGasPsv();
+      state.gas.psvCustom = false;
+      document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
+      render();
+    }
+
+    function setGasMesi(mesi) {
+      const prevMesi = state.gas.mensilita;
+      state.gas.mensilita = mesi;
+      if (mesi === 2 && prevMesi !== 2) {
+        // Pre-seleziona in automatico il mese precedente rispetto al 1° mese
+        state.gas.meseKey2 = getPreviousMonthKey(state.gas.meseKey);
+        const sel2 = document.getElementById('selectGasMese2');
+        if (sel2) sel2.value = state.gas.meseKey2;
+      }
+      state.gas.psv = getExpectedGasPsv();
       state.gas.psvCustom = false;
       document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
       render();
@@ -2533,8 +2688,10 @@
         document.getElementById('inputKwh').value = '';
       } else {
         const defMonth = CONFIG.GAS.meseDefault;
+        const defMonth2 = getPreviousMonthKey(defMonth);
         state.gas = {
           meseKey: defMonth,
+          meseKey2: defMonth2,
           psv: CONFIG.GAS.storicoPsv2026[defMonth].psv,
           psvCustom: false,
           smc: 0,
@@ -2543,6 +2700,7 @@
           fasciaIva: 'fino480'
         };
         document.getElementById('selectGasMese').value = defMonth;
+        document.getElementById('selectGasMese2').value = defMonth2;
         document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
         document.getElementById('inputSmc').value = '';
       }
@@ -2561,8 +2719,10 @@
         iva: CONFIG.LUCE.ivaDefault
       };
       const defMonth = CONFIG.GAS.meseDefault;
+      const defMonth2 = getPreviousMonthKey(defMonth);
       state.gas = {
         meseKey: defMonth,
+        meseKey2: defMonth2,
         psv: CONFIG.GAS.storicoPsv2026[defMonth].psv,
         psvCustom: false,
         smc: 0,
@@ -2573,13 +2733,15 @@
       document.getElementById('inputKwh').value = '';
       document.getElementById('inputSmc').value = '';
       document.getElementById('selectGasMese').value = defMonth;
+      document.getElementById('selectGasMese2').value = defMonth2;
       document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
       render();
     }
 
     /* ==================== INIZIALIZZAZIONE ==================== */
     document.addEventListener('DOMContentLoaded', () => {
-      // Popola selettore mesi PSV 2026 e imposta default (Ottobre 2026)
+      // Imposta 2° mese di default (mese precedente a meseDefault) e popola entrambi i selettori PSV 2026
+      state.gas.meseKey2 = getPreviousMonthKey(state.gas.meseKey);
       populateGasMonthSelect();
       document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
 
@@ -2597,7 +2759,7 @@
       document.getElementById('inputGasPsv').addEventListener('input', (e) => {
         const val = parseSafeFloat(e.target.value);
         state.gas.psv = val;
-        const base = CONFIG.GAS.storicoPsv2026[state.gas.meseKey]?.psv ?? 0;
+        const base = getExpectedGasPsv();
         state.gas.psvCustom = Math.abs(val - base) > 0.000001;
         render();
       });
