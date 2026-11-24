@@ -1543,7 +1543,7 @@
           </div>
         </div>
 
-        <!-- 4. Zona geografica per accise e addizionale regionale -->
+        <!-- 5. Zona geografica per accise e addizionale regionale -->
         <div class="field-group">
           <div class="field-header">
             <span class="field-label">Zona geografica (Accise e Addizionale regionale)</span>
@@ -1558,7 +1558,7 @@
           </div>
         </div>
 
-        <!-- 5. Fascia IVA Gas -->
+        <!-- 6. Fascia IVA Gas -->
         <div class="field-group">
           <div class="field-header">
             <span class="field-label">Fascia IVA Gas</span>
@@ -1763,7 +1763,7 @@
 
         // Storico PSV mensile 2026 integrato (€/Smc) — sovrascrivibile da ./psv-data.json se presente
         storicoPsv2026: {
-          '2026-11': { label: 'Novembre 2026 (provvisorio)', psv: 0.920570 },
+          '2026-11': { label: 'Novembre 2026 (provvisorio)', psv: 0.955000 },
           '2026-10': { label: 'Ottobre 2026', psv: 0.945436 },
           '2026-09': { label: 'Settembre 2026', psv: 0.843182 },
           '2026-08': { label: 'Agosto 2026', psv: 0.686448 },
@@ -2165,7 +2165,7 @@
      * =========================================================================
      */
     function calculateGas() {
-      const { psv, smc, mensilita, zona, fasciaIva, meseKey } = state.gas;
+      const { psv, smc, mensilita, zona, fasciaIva } = state.gas;
       const G = CONFIG.GAS;
 
       // 1. Prezzo al metro cubo (vendita + rete/oneri)
@@ -2627,20 +2627,6 @@
       state.gas.psv = getExpectedGasPsv();
       state.gas.psvCustom = false;
       document.getElementById('inputGasPsv').value = state.gas.psv.toFixed(6);
-      render();
-    }
-
-    function resetPsvToMonth() {
-      const item = CONFIG.GAS.storicoPsv2026[state.gas.meseKey];
-      if (!item) return;
-      state.gas.psv = item.psv;
-      state.gas.psvCustom = false;
-      document.getElementById('inputGasPsv').value = item.psv.toFixed(6);
-      render();
-    }
-
-    function setGasMesi(mesi) {
-      state.gas.mensilita = mesi;
       render();
     }
 
